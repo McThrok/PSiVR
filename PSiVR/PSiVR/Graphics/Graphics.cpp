@@ -1,4 +1,6 @@
 #include "Graphics.h"
+#include <iomanip>
+#include <sstream>
 
 bool Graphics::Initialize(HWND hwnd, int width, int height)
 {
@@ -26,6 +28,129 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	return true;
 }
 
+static void DrawChart(const char* title, std::vector<std::vector<ImVec2>> data, ImVec2 position, ImVec2 size, ImVec2 min_range, ImVec2 max_range) {
+
+	ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+	if (!ImGui::Begin("Example: Custom rendering"))
+	{
+		ImGui::End();
+		return;
+	}
+
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+	ImGui::Text(title);
+	ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
+	ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+	float min_size = 200;
+	if (canvas_size.x < min_size) canvas_size.x = min_size;
+	if (canvas_size.y < min_size) canvas_size.y = min_size;
+
+	draw_list->AddRectFilledMultiColor(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(50, 50, 50, 255), IM_COL32(50, 50, 60, 255), IM_COL32(60, 60, 70, 255), IM_COL32(50, 50, 60, 255));
+	draw_list->AddRect(canvas_pos, ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + canvas_size.y), IM_COL32(200, 200, 200, 200));
+
+	float offset = 45;
+	float small_offset = 20;
+	float y_axis_length = canvas_size.y - offset - small_offset;
+	float x_axis_length = canvas_size.x - offset - small_offset;
+	ImVec2 coords_start = ImVec2(canvas_pos.x + offset, canvas_pos.y + canvas_size.y - offset);
+
+	draw_list->AddLine(coords_start, ImVec2(coords_start.x, coords_start.y - y_axis_length), IM_COL32(0, 0, 0, 255), 1.0f);
+	draw_list->AddLine(coords_start, ImVec2(coords_start.x + x_axis_length, coords_start.y), IM_COL32(0, 0, 0, 255), 1.0f);
+
+	int big_unit_offset = 40;
+	int unit_number_x = std::floor(x_axis_length / big_unit_offset);
+	int unit_number_y = std::floor(y_axis_length / big_unit_offset);
+
+	float big_unit_line = 10;
+	float middle_unit_line = 7;
+	float small_unit_line = 4;
+
+	float big_unit_value_x = (max_range.x - min_range.x) / unit_number_x;
+	float big_unit_value_y = (max_range.y - min_range.y) / unit_number_y;
+
+	float font_size = 13;
+
+
+	for (int i = 0; i < unit_number_x; i++)
+	{
+		ImVec2 start, end;
+
+
+		for (int j = 1; j < 10; j++)
+		{
+			end = ImVec2(coords_start.x + big_unit_offset * (i + j / 10.0), coords_start.y);
+			start = ImVec2(end.x, end.y + small_unit_line);
+			draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+		}
+
+		end = ImVec2(coords_start.x + big_unit_offset * (i + 0.5), coords_start.y);
+		start = ImVec2(end.x, end.y + middle_unit_line);
+		draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+
+		if (i == 0) {
+			end = ImVec2(coords_start.x, coords_start.y);
+			start = ImVec2(end.x, end.y + big_unit_line);
+			draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+
+			float value =  min_range.x;
+			std::stringstream stream;
+			stream << std::fixed << std::setprecision(1) << value;
+			draw_list->AddText(NULL, font_size, ImVec2(end.x - 15, end.y + 15), IM_COL32(255, 255, 255, 255), stream.str().c_str());
+		}
+
+		end = ImVec2(coords_start.x + big_unit_offset * (i + 1), coords_start.y);
+		start = ImVec2(end.x, end.y + big_unit_line);
+		draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+		draw_list->AddLine(end, ImVec2(end.x, end.y - y_axis_length), IM_COL32(80, 80, 80, 255), 1.0f);
+
+		float value = (i + 1)*big_unit_value_x + min_range.x;
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision(1) << value;
+		draw_list->AddText(NULL, font_size, ImVec2(end.x - 15, end.y + 15), IM_COL32(255, 255, 255, 255), stream.str().c_str());
+	}
+
+	for (int i = 0; i < unit_number_y; i++)
+	{
+		ImVec2 start, end;
+
+		for (int j = 1; j < 10; j++)
+		{
+			end = ImVec2(coords_start.x, coords_start.y - big_unit_offset * (i + j / 10.0));
+			start = ImVec2(end.x - small_unit_line, end.y);
+			draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+		}
+
+		end = ImVec2(coords_start.x, coords_start.y - big_unit_offset * (i + 0.5));
+		start = ImVec2(end.x - middle_unit_line, end.y);
+		draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+
+		if (i == 0)  {
+			end = ImVec2(coords_start.x, coords_start.y);
+			start = ImVec2(end.x - big_unit_line, end.y);
+			draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+
+			float value = min_range.y;
+			std::stringstream stream;
+			stream << std::fixed << std::setprecision(1) << value;
+			draw_list->AddText(NULL, font_size, ImVec2(end.x - offset + 3, end.y - 10), IM_COL32(255, 255, 255, 255), stream.str().c_str());
+		}
+
+		end = ImVec2(coords_start.x, coords_start.y - big_unit_offset * (i + 1));
+		start = ImVec2(end.x - big_unit_line, end.y);
+		draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
+		draw_list->AddLine(end, ImVec2(end.x + x_axis_length, end.y), IM_COL32(80, 80, 80, 255), 1.0f);
+
+		float value = (i + 1)*big_unit_value_y + min_range.y;
+		std::stringstream stream;
+		stream << std::fixed << std::setprecision(1) << value;
+		draw_list->AddText(NULL, font_size, ImVec2(end.x - offset + 3, end.y -10), IM_COL32(255, 255, 255, 255), stream.str().c_str());
+	}
+
+
+
+	ImGui::End();
+}
 void Graphics::RenderFrame()
 {
 	float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -57,7 +182,7 @@ void Graphics::RenderFrame()
 	this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
 	this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
-	
+
 	//Draw Text
 	static int fpsCounter = 0;
 	static std::string fpsString = "FPS: 0";
@@ -69,7 +194,7 @@ void Graphics::RenderFrame()
 		fpsTimer.Restart();
 	}
 	spriteBatch->Begin();
-	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f,0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
 
 	static int counter = 0;
@@ -78,15 +203,29 @@ void Graphics::RenderFrame()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	//Create ImGui Test Window
-	ImGui::Begin("Test");
-	ImGui::Text("This is example text.");
-	if (ImGui::Button("CLICK ME!"))
-		counter += 1;
-	ImGui::SameLine();
-	std::string clickCount = "Click Count: " + std::to_string(counter);
-	ImGui::Text(clickCount.c_str());
-	ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
-	ImGui::End();
+	//ShowExampleAppCustomRendering();
+	std::vector<std::vector<ImVec2>> data = { { ImVec2(0,0), ImVec2(10,10), ImVec2(30,30) } };
+	DrawChart("Title", data, ImVec2(0, 0), ImVec2(100, 200), ImVec2(-10, 0), ImVec2(20, 70));
+
+	//ImGui::Begin("Test");
+	//ImGui::Text("This is example text.");
+	//if (ImGui::Button("CLICK ME!"))
+	//	counter += 1;
+	//ImGui::SameLine();
+	//std::string clickCount = "Click Count: " + std::to_string(counter);
+	//ImGui::Text(clickCount.c_str());
+	//ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
+
+	//static float f = 0;
+	//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+
+
+	//// Plot some values
+	//const float my_values[] = { 1,2,3,4,5 };
+	//ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+
+
+	//ImGui::End();
 	//Assemble Together Draw Data
 	ImGui::Render();
 	//Render Draw Data
@@ -127,18 +266,18 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	HRESULT hr;
-	hr = D3D11CreateDeviceAndSwapChain(	adapters[0].pAdapter, //IDXGI Adapter
-										D3D_DRIVER_TYPE_UNKNOWN,
-										NULL, //FOR SOFTWARE DRIVER TYPE
-										NULL, //FLAGS FOR RUNTIME LAYERS
-										NULL, //FEATURE LEVELS ARRAY
-										0, //# OF FEATURE LEVELS IN ARRAY
-										D3D11_SDK_VERSION,
-										&scd, //Swapchain description
-										this->swapchain.GetAddressOf(), //Swapchain Address
-										this->device.GetAddressOf(), //Device Address
-										NULL, //Supported feature level
-										this->deviceContext.GetAddressOf()); //Device Context Address
+	hr = D3D11CreateDeviceAndSwapChain(adapters[0].pAdapter, //IDXGI Adapter
+		D3D_DRIVER_TYPE_UNKNOWN,
+		NULL, //FOR SOFTWARE DRIVER TYPE
+		NULL, //FLAGS FOR RUNTIME LAYERS
+		NULL, //FEATURE LEVELS ARRAY
+		0, //# OF FEATURE LEVELS IN ARRAY
+		D3D11_SDK_VERSION,
+		&scd, //Swapchain description
+		this->swapchain.GetAddressOf(), //Swapchain Address
+		this->device.GetAddressOf(), //Device Address
+		NULL, //Supported feature level
+		this->deviceContext.GetAddressOf()); //Device Context Address
 
 	if (FAILED(hr))
 	{
@@ -264,17 +403,17 @@ bool Graphics::InitializeShaders()
 	if (IsDebuggerPresent() == TRUE)
 	{
 #ifdef _DEBUG //Debug Mode
-	#ifdef _WIN64 //x64
-			shaderfolder = L"..\\x64\\Debug\\";
-	#else  //x86 (Win32)
-			shaderfolder = L"..\\Debug\\";
-	#endif
-	#else //Release Mode
-	#ifdef _WIN64 //x64
-			shaderfolder = L"..\\x64\\Release\\";
-	#else  //x86 (Win32)
-			shaderfolder = L"..\\Release\\";
-	#endif
+#ifdef _WIN64 //x64
+		shaderfolder = L"..\\x64\\Debug\\";
+#else  //x86 (Win32)
+		shaderfolder = L"..\\Debug\\";
+#endif
+#else //Release Mode
+#ifdef _WIN64 //x64
+		shaderfolder = L"..\\x64\\Release\\";
+#else  //x86 (Win32)
+		shaderfolder = L"..\\Release\\";
+#endif
 #endif
 	}
 
@@ -303,7 +442,7 @@ bool Graphics::InitializeScene()
 	{
 		Vertex(-0.5f,  -0.5f, 0.0f, 0.0f, 1.0f), //Bottom Left   - [0]
 		Vertex(-0.5f,   0.5f, 0.0f, 0.0f, 0.0f), //Top Left      - [1]
-		Vertex( 0.5f,   0.5f, 0.0f, 1.0f, 0.0f), //Top Right     - [2]
+		Vertex(0.5f,   0.5f, 0.0f, 1.0f, 0.0f), //Top Right     - [2]
 		Vertex(0.5f,  -0.5f, 0.0f, 1.0f, 1.0f), //Bottom Right   - [3]
 	};
 
@@ -322,7 +461,7 @@ bool Graphics::InitializeScene()
 	};
 
 	//Load Index Data
-	
+
 	hr = this->indicesBuffer.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
 	if (FAILED(hr))
 	{
