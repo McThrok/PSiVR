@@ -24,6 +24,11 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
+	void InitGui(HWND hwnd);
+
+	void RendeGui();
+	void RenderMainPanel();
+	void RenderCharts();
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;

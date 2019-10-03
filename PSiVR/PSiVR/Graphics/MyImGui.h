@@ -9,11 +9,13 @@
 
 struct ChartData {
 public:
+	ChartData() {}
+	ChartData(std::vector<ImVec2> _data, ImU32 _color) :data(_data), color(_color) {}
 	std::vector<ImVec2> data;
 	ImU32 color;
 };
 
 class MyImGui {
 public:
-	static void DrawChart(const char* title, std::vector<ChartData*> data, ImVec2 position, ImVec2 size, ImVec2 min_range, ImVec2 max_range);
+	static void DrawChart(std::vector<ChartData*> data, ImVec2 min_range, ImVec2 max_range);
 };

@@ -3,14 +3,7 @@
 #include <sstream>
 #include <algorithm>
 
-void MyImGui::DrawChart(const char* title, std::vector<ChartData*> data, ImVec2 position, ImVec2 size, ImVec2 min_range, ImVec2 max_range) {
-
-	ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin(title))
-	{
-		ImGui::End();
-		return;
-	}
+void MyImGui::DrawChart(std::vector<ChartData*> data, ImVec2 min_range, ImVec2 max_range) {
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
@@ -140,6 +133,4 @@ void MyImGui::DrawChart(const char* title, std::vector<ChartData*> data, ImVec2 
 	}
 	draw_list->PopClipRect();
 
-
-	ImGui::End();
 }

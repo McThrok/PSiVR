@@ -16,13 +16,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	if (!InitializeScene())
 		return false;
 
-	//Setup ImGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX11_Init(this->device.Get(), this->deviceContext.Get());
-	ImGui::StyleColorsDark();
+	InitGui(hwnd);
 
 	return true;
 }
@@ -72,43 +66,7 @@ void Graphics::RenderFrame()
 	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
 
-	static int counter = 0;
-	// Start the Dear ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-	//Create ImGui Test Window
-	//ShowExampleAppCustomRendering();
-
-
-	MyImGui::ChartData cd;
-	cd.color = IM_COL32(200, 0, 0, 255);
-	cd.data = { {0,3},{5,-2} };
-	MyImGui::DrawChart("My Title", { &cd }, ImVec2(0, 0), ImVec2(100, 200), ImVec2(-0, 0), ImVec2(3, 3));
-
-	//ImGui::Begin("Test");
-	//ImGui::Text("This is example text.");
-	//if (ImGui::Button("CLICK ME!"))
-	//	counter += 1;
-	//ImGui::SameLine();
-	//std::string clickCount = "Click Count: " + std::to_string(counter);
-	//ImGui::Text(clickCount.c_str());
-	//ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
-
-	//static float f = 0;
-	//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-
-
-	//// Plot some values
-	//const float my_values[] = { 1,2,3,4,5 };
-	//ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
-
-
-	//ImGui::End();
-	//Assemble Together Draw Data
-	ImGui::Render();
-	//Render Draw Data
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	RendeGui();
 
 	this->swapchain->Present(0, NULL);
 }
@@ -368,4 +326,66 @@ bool Graphics::InitializeScene()
 	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
 	return true;
+}
+
+void  Graphics::InitGui(HWND hwnd) {
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplDX11_Init(this->device.Get(), this->deviceContext.Get());
+	ImGui::StyleColorsDark();
+}
+
+void  Graphics::RendeGui() {
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	RenderMainPanel();
+	RenderCharts();
+
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Graphics::RenderMainPanel() {
+	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
+	if (!ImGui::Begin("Main Panel"))
+	{
+		ImGui::End();
+		return;
+	}
+
+	static int counter = 0;
+	ImGui::Text("This is example text.");
+	if (ImGui::Button("CLICK ME!"))
+		counter += 1;
+	ImGui::SameLine();
+	std::string clickCount = "Click Count: " + std::to_string(counter);
+	ImGui::Text(clickCount.c_str());
+	static float translationOffset[3] = { 0, 0, 0 };
+	ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
+
+	static float f = 0;
+	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+
+
+	// Plot some values
+	const float my_values[] = { 1,2,3,4,5 };
+	ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+
+	ImGui::End();
+}
+
+void  Graphics::RenderCharts() {
+	ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(600, 50), ImGuiCond_Once);
+	if (ImGui::Begin("My Title"))
+	{
+		ChartData cd({ {0,3},{5,-2} }, IM_COL32(200, 0, 0, 255));
+		MyImGui::DrawChart({ &cd }, ImVec2(-0, 0), ImVec2(3, 3));
+		ImGui::End();
+	}
 }
