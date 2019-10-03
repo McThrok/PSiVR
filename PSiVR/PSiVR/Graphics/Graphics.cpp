@@ -27,19 +27,22 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 	return true;
 }
+struct ChartData {
+public:
+	std::vector<ImVec2> data;
+	ImU32 color;
+};
 
-static void DrawChart(const char* title, std::vector<std::vector<ImVec2>> data, ImVec2 position, ImVec2 size, ImVec2 min_range, ImVec2 max_range) {
+static void DrawChart(const char* title, std::vector<ChartData*> data, ImVec2 position, ImVec2 size, ImVec2 min_range, ImVec2 max_range) {
 
 	ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("Example: Custom rendering"))
+	if (!ImGui::Begin(title))
 	{
 		ImGui::End();
 		return;
 	}
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-	ImGui::Text(title);
 	ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
 	ImVec2 canvas_size = ImGui::GetContentRegionAvail();
 	float min_size = 200;
@@ -51,8 +54,8 @@ static void DrawChart(const char* title, std::vector<std::vector<ImVec2>> data, 
 
 	float offset = 45;
 	float small_offset = 20;
-	float y_axis_length = canvas_size.y - offset - small_offset;
 	float x_axis_length = canvas_size.x - offset - small_offset;
+	float y_axis_length = canvas_size.y - offset - small_offset;
 	ImVec2 coords_start = ImVec2(canvas_pos.x + offset, canvas_pos.y + canvas_size.y - offset);
 
 	draw_list->AddLine(coords_start, ImVec2(coords_start.x, coords_start.y - y_axis_length), IM_COL32(0, 0, 0, 255), 1.0f);
@@ -70,7 +73,6 @@ static void DrawChart(const char* title, std::vector<std::vector<ImVec2>> data, 
 	float big_unit_value_y = (max_range.y - min_range.y) / unit_number_y;
 
 	float font_size = 13;
-
 
 	for (int i = 0; i < unit_number_x; i++)
 	{
@@ -93,7 +95,7 @@ static void DrawChart(const char* title, std::vector<std::vector<ImVec2>> data, 
 			start = ImVec2(end.x, end.y + big_unit_line);
 			draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
 
-			float value =  min_range.x;
+			float value = min_range.x;
 			std::stringstream stream;
 			stream << std::fixed << std::setprecision(1) << value;
 			draw_list->AddText(NULL, font_size, ImVec2(end.x - 15, end.y + 15), IM_COL32(255, 255, 255, 255), stream.str().c_str());
@@ -125,7 +127,7 @@ static void DrawChart(const char* title, std::vector<std::vector<ImVec2>> data, 
 		start = ImVec2(end.x - middle_unit_line, end.y);
 		draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
 
-		if (i == 0)  {
+		if (i == 0) {
 			end = ImVec2(coords_start.x, coords_start.y);
 			start = ImVec2(end.x - big_unit_line, end.y);
 			draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
@@ -144,9 +146,29 @@ static void DrawChart(const char* title, std::vector<std::vector<ImVec2>> data, 
 		float value = (i + 1)*big_unit_value_y + min_range.y;
 		std::stringstream stream;
 		stream << std::fixed << std::setprecision(1) << value;
-		draw_list->AddText(NULL, font_size, ImVec2(end.x - offset + 3, end.y -10), IM_COL32(255, 255, 255, 255), stream.str().c_str());
+		draw_list->AddText(NULL, font_size, ImVec2(end.x - offset + 3, end.y - 10), IM_COL32(255, 255, 255, 255), stream.str().c_str());
 	}
 
+
+	canvas_size = ImGui::GetContentRegionAvail();
+	ImVec2 clip_start = ImVec2(coords_start.x, coords_start.y - y_axis_length);
+	ImVec2 clip_end1 = ImVec2(coords_start.x + x_axis_length, coords_start.y);
+	ImVec2 clip_end2 = ImVec2(canvas_pos.x + canvas_size.x + ImGui::GetStyle().WindowPadding.x-4, canvas_pos.y + canvas_size.y + ImGui::GetStyle().WindowPadding.y);
+	ImVec2 clip_end = ImVec2(min(clip_end1.x, clip_end2.x), min(clip_end1.y, clip_end2.y));
+	draw_list->PushClipRect(clip_start, clip_end, false);
+
+	ImVec2 range_end = ImVec2(coords_start.x + unit_number_x * big_unit_offset, coords_start.y - unit_number_y * big_unit_offset);
+
+	for (auto& cd : data) {
+		for (int i = 0; i < cd->data.size() - 1; i++) {
+			float start_x = (cd->data[i].x + min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
+			float start_y = (cd->data[i].y + min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
+			float end_x = (cd->data[i + 1].x + min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
+			float end_y = (cd->data[i + 1].y + min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
+			draw_list->AddLine(ImVec2(start_x, start_y), ImVec2(end_x, end_y), cd->color, 2.0f);
+		}
+	}
+	draw_list->PopClipRect();
 
 
 	ImGui::End();
@@ -204,8 +226,10 @@ void Graphics::RenderFrame()
 	ImGui::NewFrame();
 	//Create ImGui Test Window
 	//ShowExampleAppCustomRendering();
-	std::vector<std::vector<ImVec2>> data = { { ImVec2(0,0), ImVec2(10,10), ImVec2(30,30) } };
-	DrawChart("Title", data, ImVec2(0, 0), ImVec2(100, 200), ImVec2(-10, 0), ImVec2(20, 70));
+	ChartData cd;
+	cd.color = IM_COL32(200, 0, 0, 255);
+	cd.data = { {0,3},{5,-2} };
+	DrawChart("My Title", { &cd }, ImVec2(0, 0), ImVec2(100, 200), ImVec2(-0, 0), ImVec2(3, 3));
 
 	//ImGui::Begin("Test");
 	//ImGui::Text("This is example text.");
