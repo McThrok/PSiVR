@@ -6,6 +6,7 @@ class Simulation
 public:
 	float m, c, w, h, k, delta_time, time;
 	int iterations_limit = 500;
+	bool paused = false;
 
 	std::vector<float> x;
 	std::vector<float> xt;

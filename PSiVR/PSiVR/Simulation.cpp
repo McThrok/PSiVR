@@ -1,7 +1,7 @@
 #include "Simulation.h"
 
 void Simulation::Init() {
-	delta_time = 0.02;
+	delta_time = 0.05;
 	m = 25;
 	c = 300;
 	k = 3;
@@ -35,6 +35,9 @@ void Simulation::Reset() {
 }
 
 void Simulation::Update(float dt) {
+	if (paused)
+		return;
+	
 	if (x.size() > iterations_limit)
 		Reset();
 

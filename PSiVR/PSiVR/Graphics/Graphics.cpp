@@ -21,7 +21,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 }
 void Graphics::RenderFrame()
 {
-	float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float bgcolor[] = { 0.05f, 0.05f, 0.1f, 1.0f };
 	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
 	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -51,19 +51,19 @@ void Graphics::RenderFrame()
 	//this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	//this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
 
-	////Draw Text
-	//static int fpsCounter = 0;
-	//static std::string fpsString = "FPS: 0";
-	//fpsCounter += 1;
-	//if (fpsTimer.GetMilisecondsElapsed() > 1000.0)
-	//{
-	//	fpsString = "FPS: " + std::to_string(fpsCounter);
-	//	fpsCounter = 0;
-	//	fpsTimer.Restart();
-	//}
-	//spriteBatch->Begin();
-	//spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	//spriteBatch->End();
+	//Draw Text
+	static int fpsCounter = 0;
+	static std::string fpsString = "FPS: 0";
+	fpsCounter += 1;
+	if (fpsTimer.GetMilisecondsElapsed() > 1000.0)
+	{
+		fpsString = "FPS: " + std::to_string(fpsCounter);
+		fpsCounter = 0;
+		fpsTimer.Restart();
+	}
+	spriteBatch->Begin();
+	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
+	spriteBatch->End();
 
 	RendeGui();
 
@@ -100,21 +100,60 @@ void Graphics::RenderMainPanel() {
 		return;
 	}
 
-	if (ImGui::Button("Reset"))
-	{
-		simulation->Reset();
+	if (simulation->paused) {
+		if (ImGui::Button("Start"))
+			simulation->paused = false;
 	}
+	else {
+		if (ImGui::Button("Pause"))
+			simulation->paused = true;
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Reset"))
+		simulation->Reset();
+
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.01f, 0.2f);
 	ImGui::SliderFloat("m", &simulation->m, 10.0f, 100.0f);
 	ImGui::SliderFloat("c", &simulation->c, 50.0f, 500.0f);
-	ImGui::SliderFloat("k", &simulation->k, 0.1,10);
+	ImGui::SliderFloat("k", &simulation->k, 0.1, 10);
+
+	static ImGuiColorEditFlags alpha_flags = 0;
+	ImGui::RadioButton("Const", &alpha_flags, 0); ImGui::SameLine();
+	ImGui::RadioButton("jump", &alpha_flags, 1); ImGui::SameLine();
+	ImGui::RadioButton("sgn sin", &alpha_flags, 2); ImGui::SameLine();
+	ImGui::RadioButton("sin", &alpha_flags, 3);
 
 	ImGui::End();
 }
 
 void  Graphics::RenderCharts() {
-	ImGui::SetNextWindowSize(ImVec2(1570, 400), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(320, 580), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1570, 250), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(320, 460), ImGuiCond_Once);
+	if (ImGui::Begin("x(t)-red  x'(t)-green  x''(t)-blue"))
+	{
+		std::vector<ImVec2> dataX;
+		for (size_t i = 0; i < simulation->x.size(); i++)
+			dataX.push_back(ImVec2(simulation->t[i], simulation->x[i]));
+		ChartData cdX(dataX, IM_COL32(200, 0, 0, 255));
+
+		std::vector<ImVec2> dataXt;
+		for (size_t i = 0; i < simulation->xt.size(); i++)
+			dataXt.push_back(ImVec2(simulation->t[i], simulation->xt[i]));
+		ChartData cdXt(dataXt, IM_COL32(0, 200, 0, 255));
+
+		std::vector<ImVec2> dataXtt;
+		for (size_t i = 0; i < simulation->xtt.size(); i++)
+			dataXtt.push_back(ImVec2(simulation->t[i], simulation->xtt[i]));
+		ChartData cdXtt(dataXtt, IM_COL32(0, 0, 200, 255));
+
+		MyImGui::DrawChart({ &cdX,&cdXt,&cdXtt, }, ImVec2(0, -20), ImVec2(30, 20));
+		ImGui::End();
+	}
+
+	ImGui::SetNextWindowSize(ImVec2(1570, 250), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(320, 730), ImGuiCond_Once);
 	if (ImGui::Begin("My Title"))
 	{
 		std::vector<ImVec2> dataX;
@@ -136,8 +175,8 @@ void  Graphics::RenderCharts() {
 		ImGui::End();
 	}
 
-	ImGui::SetNextWindowSize(ImVec2(500, 500), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(1390, 30), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(1490, 30), ImGuiCond_Once);
 	if (ImGui::Begin("State"))
 	{
 		std::vector<ImVec2> data;
