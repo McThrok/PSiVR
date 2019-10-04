@@ -4,7 +4,7 @@ void Simulation::Init() {
 	delta_time = 0.02;
 	m = 25;
 	c = 300;
-	k = 0.001;
+	k = 3;
 	w = 0;
 	h = 0;
 	time = 0;
@@ -21,12 +21,12 @@ void Simulation::Reset() {
 	x.push_back(1);
 	xt.push_back(0);
 	xtt.push_back(0);
-	t.push_back(-delta_time*2);
+	t.push_back(-delta_time * 2);
 
 	x.push_back(1);
 	xt.push_back(0);
 	xtt.push_back(0);
-	t.push_back(-delta_time );
+	t.push_back(-delta_time);
 
 	x.push_back(1);
 	xt.push_back(GetNextXt());
@@ -52,8 +52,7 @@ void Simulation::Update(float dt) {
 float Simulation::GetNextX() {
 	float x0 = x.rbegin()[1];
 	float x1 = x.back();
-	//return (2 * x0 - x1 + (delta_time*delta_time / m)*(c*(w - x0) + k * x1 / (2 * delta_time)))*(1 + k * delta_time / (2 * m));
-	return 2 * x1 - x0 + (delta_time * delta_time / m) * (c * (w - x1));
+	return (2 * x1 - x0 + (delta_time *delta_time / m) * (c*(w - x1) + k * x0 / (2 * delta_time))) / (1 + k * delta_time/(2 * m) );
 
 }
 
