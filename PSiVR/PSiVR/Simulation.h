@@ -4,17 +4,22 @@
 class Simulation
 {
 public:
-	float m, c, w, h, k, time_break, time;
+	float m, c, w, h, k, delta_time, time;
+	int iterations_limit = 500;
+
 	std::vector<float> x;
+	std::vector<float> xt;
+	std::vector<float> xtt;
 	std::vector<float> t;
-	std::vector<float> v;
 
 	Simulation() {}
 	void Init();
+	void Reset();
 	void Update(float dt);
 
 private:
 	float GetNextX();
-	float GetNextV();
+	float GetNextXt();
+	float GetNextXtt();
 };
 

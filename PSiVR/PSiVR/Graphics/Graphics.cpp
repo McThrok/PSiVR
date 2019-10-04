@@ -92,48 +92,61 @@ void Graphics::RendeGui() {
 }
 
 void Graphics::RenderMainPanel() {
-	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(300, 950), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(10, 30), ImGuiCond_Once);
 	if (!ImGui::Begin("Main Panel"))
 	{
 		ImGui::End();
 		return;
 	}
 
-	static int counter = 0;
-	ImGui::Text("This is example text.");
-	if (ImGui::Button("CLICK ME!"))
-		counter += 1;
-	ImGui::SameLine();
-	std::string clickCount = "Click Count: " + std::to_string(counter);
-	ImGui::Text(clickCount.c_str());
-	static float translationOffset[3] = { 0, 0, 0 };
-	ImGui::DragFloat3("Translation X/Y/Z", translationOffset, 0.1f, -5.0f, 5.0f);
-
-	static float f = 0;
-	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-
-
-	// Plot some values
-	const float my_values[] = { 1,2,3,4,5 };
-	ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+	if (ImGui::Button("Reset"))
+	{
+		simulation->Reset();
+	}
+	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.01f, 0.3f);
+	ImGui::SliderFloat("m", &simulation->m, 10.0f, 100.0f);
+	ImGui::SliderFloat("c", &simulation->c, 50.0f, 500.0f);
+	ImGui::SliderFloat("k", &simulation->k, 0.0001f, 0.001f,"%.5f");
 
 	ImGui::End();
 }
 
 void  Graphics::RenderCharts() {
-	ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(600, 50), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1300, 400), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(320, 580), ImGuiCond_Once);
 	if (ImGui::Begin("My Title"))
+	{
+		std::vector<ImVec2> dataX;
+		for (size_t i = 0; i < simulation->x.size(); i++)
+			dataX.push_back(ImVec2(simulation->t[i], simulation->x[i]));
+		ChartData cdX(dataX, IM_COL32(200, 0, 0, 255));
+
+		std::vector<ImVec2> dataXt;
+		for (size_t i = 0; i < simulation->xt.size(); i++)
+			dataXt.push_back(ImVec2(simulation->t[i], simulation->xt[i]));
+		ChartData cdXt(dataXt, IM_COL32(0, 200, 0, 255));
+
+		std::vector<ImVec2> dataXtt;
+		for (size_t i = 0; i < simulation->xtt.size(); i++)
+			dataXtt.push_back(ImVec2(simulation->t[i], simulation->xtt[i]));
+		ChartData cdXtt(dataXtt, IM_COL32(0, 0, 200, 255));
+
+		MyImGui::DrawChart({ &cdX,&cdXt,&cdXtt, }, ImVec2(0, -20), ImVec2(30, 20));
+		ImGui::End();
+	}
+
+	ImGui::SetNextWindowSize(ImVec2(500, 500), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(1390, 30), ImGuiCond_Once);
+	if (ImGui::Begin("State"))
 	{
 		std::vector<ImVec2> data;
 		for (size_t i = 0; i < simulation->x.size(); i++)
-			data.push_back(ImVec2(simulation->t[i], simulation->x[i]));
-	/*	for (size_t i = 0; i < 10; i++)
-			data.push_back(ImVec2(i, i));*/
-
+			data.push_back(ImVec2(simulation->x[i], simulation->xt[i]));
 		ChartData cd(data, IM_COL32(200, 0, 0, 255));
-		MyImGui::DrawChart({ &cd }, ImVec2(0, -2), ImVec2(10, 2));
+
+
+		MyImGui::DrawChart({ &cd }, ImVec2(-5, -5), ImVec2(5, 5));
 		ImGui::End();
 	}
 }
