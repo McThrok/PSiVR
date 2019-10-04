@@ -119,11 +119,22 @@ void Graphics::RenderMainPanel() {
 	ImGui::SliderFloat("c", &simulation->c, 50.0f, 500.0f);
 	ImGui::SliderFloat("k", &simulation->k, 0.1, 10);
 
-	static ImGuiColorEditFlags alpha_flags = 0;
-	ImGui::RadioButton("Const", &alpha_flags, 0); ImGui::SameLine();
-	ImGui::RadioButton("jump", &alpha_flags, 1); ImGui::SameLine();
-	ImGui::RadioButton("sgn sin", &alpha_flags, 2); ImGui::SameLine();
-	ImGui::RadioButton("sin", &alpha_flags, 3);
+
+	ImGui::Separator();
+	ImGui::Text("function w(t):");
+	ImGui::RadioButton("Zero##w", &simulation->w_func, 0); ImGui::SameLine();
+	ImGui::RadioButton("Const##w", &simulation->w_func, 1); ImGui::SameLine();
+	ImGui::RadioButton("Jump##w", &simulation->w_func, 2);
+	ImGui::RadioButton("Sgn Sin##w", &simulation->w_func, 3); ImGui::SameLine();
+	ImGui::RadioButton("Sin##w", &simulation->w_func, 4);
+
+	ImGui::Separator();
+	ImGui::Text("function h(t):");
+	ImGui::RadioButton("Zero##h", &simulation->h_func, 0); ImGui::SameLine();
+	ImGui::RadioButton("Const##h", &simulation->h_func, 1); ImGui::SameLine();
+	ImGui::RadioButton("Jump##h", &simulation->h_func, 2);
+	ImGui::RadioButton("Sgn Sin##h", &simulation->h_func, 3); ImGui::SameLine();
+	ImGui::RadioButton("Sin##h", &simulation->h_func, 4);
 
 	ImGui::End();
 }
@@ -154,24 +165,20 @@ void  Graphics::RenderCharts() {
 
 	ImGui::SetNextWindowSize(ImVec2(1570, 250), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(320, 730), ImGuiCond_Once);
-	if (ImGui::Begin("My Title"))
+	if (ImGui::Begin("w(t)-red  h(t)-green"))
 	{
-		std::vector<ImVec2> dataX;
-		for (size_t i = 0; i < simulation->x.size(); i++)
-			dataX.push_back(ImVec2(simulation->t[i], simulation->x[i]));
-		ChartData cdX(dataX, IM_COL32(200, 0, 0, 255));
+		std::vector<ImVec2> dataW;
+		for (size_t i = 0; i < simulation->w.size(); i++)
+			dataW.push_back(ImVec2(simulation->t[i], simulation->w[i]));
+		ChartData cdW(dataW, IM_COL32(200, 0, 0, 255));
 
-		std::vector<ImVec2> dataXt;
-		for (size_t i = 0; i < simulation->xt.size(); i++)
-			dataXt.push_back(ImVec2(simulation->t[i], simulation->xt[i]));
-		ChartData cdXt(dataXt, IM_COL32(0, 200, 0, 255));
+		std::vector<ImVec2> dataH;
+		for (size_t i = 0; i < simulation->h.size(); i++)
+			dataH.push_back(ImVec2(simulation->t[i], simulation->h[i]));
+		ChartData cdH(dataH, IM_COL32(0, 200, 0, 255));
 
-		std::vector<ImVec2> dataXtt;
-		for (size_t i = 0; i < simulation->xtt.size(); i++)
-			dataXtt.push_back(ImVec2(simulation->t[i], simulation->xtt[i]));
-		ChartData cdXtt(dataXtt, IM_COL32(0, 0, 200, 255));
 
-		MyImGui::DrawChart({ &cdX,&cdXt,&cdXtt, }, ImVec2(0, -20), ImVec2(30, 20));
+		MyImGui::DrawChart({ &cdW,&cdH }, ImVec2(0, -2), ImVec2(20, 2));
 		ImGui::End();
 	}
 
