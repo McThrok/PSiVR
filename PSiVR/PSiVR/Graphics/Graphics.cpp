@@ -110,15 +110,13 @@ void Graphics::RenderMainPanel() {
 	}
 
 	ImGui::SameLine();
-
 	if (ImGui::Button("Reset"))
 		simulation->Reset();
 
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.01f, 0.2f);
-	ImGui::SliderFloat("m", &simulation->m, 10.0f, 100.0f);
-	ImGui::SliderFloat("c", &simulation->c, 50.0f, 500.0f);
-	ImGui::SliderFloat("k", &simulation->k, 0.1, 10);
-
+	ImGui::SliderFloat("m", &simulation->m, 0.3, 2);
+	ImGui::SliderFloat("c", &simulation->c, 1, 10);
+	ImGui::SliderFloat("k", &simulation->k, 0, 0.5);
 
 	ImGui::Separator();
 	ImGui::Text("function w(t):");
@@ -140,8 +138,8 @@ void Graphics::RenderMainPanel() {
 }
 
 void  Graphics::RenderCharts() {
-	ImGui::SetNextWindowSize(ImVec2(1570, 250), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(320, 460), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1570, 370), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(320, 370), ImGuiCond_Once);
 	if (ImGui::Begin("x(t)-red  x'(t)-green  x''(t)-blue"))
 	{
 		std::vector<ImVec2> dataX;
@@ -159,12 +157,12 @@ void  Graphics::RenderCharts() {
 			dataXtt.push_back(ImVec2(simulation->t[i], simulation->xtt[i]));
 		ChartData cdXtt(dataXtt, IM_COL32(0, 0, 200, 255));
 
-		MyImGui::DrawChart({ &cdX,&cdXt,&cdXtt, }, ImVec2(0, -20), ImVec2(30, 20));
+		MyImGui::DrawChart({ &cdXtt,&cdXt,&cdX }, ImVec2(0, -10), ImVec2(30, 10));
 		ImGui::End();
 	}
 
-	ImGui::SetNextWindowSize(ImVec2(1570, 250), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(320, 730), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(1570, 230), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(320, 750), ImGuiCond_Once);
 	if (ImGui::Begin("w(t)-red  h(t)-green"))
 	{
 		std::vector<ImVec2> dataW;
@@ -177,13 +175,12 @@ void  Graphics::RenderCharts() {
 			dataH.push_back(ImVec2(simulation->t[i], simulation->h[i]));
 		ChartData cdH(dataH, IM_COL32(0, 200, 0, 255));
 
-
-		MyImGui::DrawChart({ &cdW,&cdH }, ImVec2(0, -2), ImVec2(20, 2));
+		MyImGui::DrawChart({ &cdW,&cdH }, ImVec2(0, -2), ImVec2(30, 2));
 		ImGui::End();
 	}
 
-	ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Once);
-	ImGui::SetNextWindowPos(ImVec2(1490, 30), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(350, 350), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(1540, 10), ImGuiCond_Once);
 	if (ImGui::Begin("State"))
 	{
 		std::vector<ImVec2> data;
@@ -191,8 +188,7 @@ void  Graphics::RenderCharts() {
 			data.push_back(ImVec2(simulation->x[i], simulation->xt[i]));
 		ChartData cd(data, IM_COL32(200, 0, 0, 255));
 
-
-		MyImGui::DrawChart({ &cd }, ImVec2(-2, -5), ImVec2(2, 5));
+		MyImGui::DrawChart({ &cd }, ImVec2(-4, -7), ImVec2(4, 7));
 		ImGui::End();
 	}
 }

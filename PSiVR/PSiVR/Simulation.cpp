@@ -2,9 +2,9 @@
 
 void Simulation::Init() {
 	delta_time = 0.05;
-	m = 25;
-	c = 300;
-	k = 3;
+	m = 0.75;
+	c = 5;
+	k = 0.1;
 	time = 0;
 	h_func = 0;
 	w_func = 0;
@@ -66,7 +66,7 @@ void Simulation::Update(float dt) {
 void Simulation::AddNextX() {
 	float x0 = x.rbegin()[1];
 	float x1 = x.back();
-	float result = (2 * x1 - x0 + (delta_time *delta_time / m) * (c*(w.back() - x1) + k * x0 / (2 * delta_time))) / (1 + k * delta_time / (2 * m));
+	float result = (2 * x1 - x0 + (delta_time *delta_time / m) * (c*(w.back() - x1) + k * x0 / (2 * delta_time) + h.back())) / (1 + k * delta_time / (2 * m));
 	x.push_back(result);
 
 }
@@ -99,9 +99,9 @@ void Simulation::AddNextH() {
 }
 
 float Simulation::GetFunc(int func) {
-	float a = 0.5;
+	float a = 1;
 	float fi = 0;
-	float om = 5;
+	float om = 1;
 
 	switch (func)
 	{
@@ -109,8 +109,8 @@ float Simulation::GetFunc(int func) {
 	case 2: return t.back() > 0 ? a : 0;
 	case 3:
 	{
-		float val = a * sin(om * t.back() + fi);
-		return val > 0 ? 1 : val < 0 ? -1 : 0;
+		float val = sin(om * t.back() + fi);
+		return a * (val > 0 ? 1 : val < 0 ? -1 : 0);
 	}
 	case 4:		return a * sin(om * t.back() + fi);
 	default: return 0;
