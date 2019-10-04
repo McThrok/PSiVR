@@ -25,33 +25,53 @@ void Graphics::RenderFrame()
 	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
 	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	//this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
-	//this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//this->deviceContext->RSSetState(this->rasterizerState.Get());
-	//this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
-	//this->deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
-	//this->deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
-	//this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
+	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
+	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	this->deviceContext->RSSetState(this->rasterizerState.Get());
+	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	this->deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
+	this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
-	//UINT offset = 0;
+	UINT offset = 0;
 
-	////Update Constant Buffer
-	//static float translationOffset[3] = { 0, 0, 0 };
-	//XMMATRIX world = XMMatrixTranslation(translationOffset[0], translationOffset[1], translationOffset[2]);
-	//constantBuffer.data.mat = world * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-	//constantBuffer.data.mat = DirectX::XMMatrixTranspose(constantBuffer.data.mat);
 
-	//if (!constantBuffer.ApplyChanges())
-	//	return;
-	//this->deviceContext->VSSetConstantBuffers(0, 1, this->constantBuffer.GetAddressOf());
 
-	////Square
-	//this->deviceContext->PSSetShaderResources(0, 1, this->myTexture.GetAddressOf());
-	//this->deviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
-	//this->deviceContext->IASetIndexBuffer(indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	//this->deviceContext->DrawIndexed(indicesBuffer.BufferSize(), 0, 0);
+	float val = 2 + simulation->x.back();
+	XMMATRIX world = XMMatrixTranslation(0.5, 0, 0) * XMMatrixScaling(0.4, 0.4, 1) * XMMatrixTranslation(val, 0, 0);
 
-	//Draw Text
+	cbMVP.data.mat = world * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	cbMVP.data.mat = DirectX::XMMatrixTranspose(cbMVP.data.mat);
+
+	if (!cbMVP.ApplyChanges())
+		return;
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbMVP.GetAddressOf());
+
+	this->deviceContext->IASetVertexBuffers(0, 1, vbMass.GetAddressOf(), vbMass.StridePtr(), &offset);
+	this->deviceContext->IASetIndexBuffer(ibMass.Get(), DXGI_FORMAT_R32_UINT, 0);
+	this->deviceContext->DrawIndexed(ibMass.BufferSize(), 0, 0);
+
+
+	 world = XMMatrixScaling(val, 0.2, 1) * XMMatrixTranslation(val / 2, 0, 0);
+
+	cbMVP.data.mat = world * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	cbMVP.data.mat = DirectX::XMMatrixTranspose(cbMVP.data.mat);
+
+	if (!cbMVP.ApplyChanges())
+		return;
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbMVP.GetAddressOf());
+
+	this->deviceContext->IASetVertexBuffers(0, 1, vbSpring.GetAddressOf(), vbMass.StridePtr(), &offset);
+	this->deviceContext->IASetIndexBuffer(ibSpring.Get(), DXGI_FORMAT_R32_UINT, 0);
+	this->deviceContext->DrawIndexed(ibSpring.BufferSize(), 0, 0);
+
+
+	RendeGui();
+	updateFPSCounter();
+
+	this->swapchain->Present(0, NULL);
+}
+
+void Graphics::updateFPSCounter() {
 	static int fpsCounter = 0;
 	static std::string fpsString = "FPS: 0";
 	fpsCounter += 1;
@@ -64,10 +84,6 @@ void Graphics::RenderFrame()
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
 	spriteBatch->End();
-
-	RendeGui();
-
-	this->swapchain->Present(0, NULL);
 }
 
 void Graphics::InitGui(HWND hwnd) {
@@ -157,7 +173,7 @@ void  Graphics::RenderCharts() {
 			dataXtt.push_back(ImVec2(simulation->t[i], simulation->xtt[i]));
 		ChartData cdXtt(dataXtt, IM_COL32(0, 0, 200, 255));
 
-		MyImGui::DrawChart({ &cdXtt,&cdXt,&cdX }, ImVec2(0, -10), ImVec2(30, 10));
+		MyImGui::DrawChart({ &cdXtt, &cdXt, &cdX }, ImVec2(0, -10), ImVec2(30, 10));
 		ImGui::End();
 	}
 
@@ -175,7 +191,7 @@ void  Graphics::RenderCharts() {
 			dataH.push_back(ImVec2(simulation->t[i], simulation->h[i]));
 		ChartData cdH(dataH, IM_COL32(0, 200, 0, 255));
 
-		MyImGui::DrawChart({ &cdW,&cdH }, ImVec2(0, -2), ImVec2(30, 2));
+		MyImGui::DrawChart({ &cdW, &cdH }, ImVec2(0, -2), ImVec2(30, 2));
 		ImGui::End();
 	}
 

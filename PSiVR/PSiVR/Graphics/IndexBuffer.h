@@ -30,7 +30,7 @@ public:
 		return this->bufferSize;
 	}
 
-	HRESULT Initialize(ID3D11Device *device, DWORD * data, UINT numIndices)
+	HRESULT Initialize(ID3D11Device *device, int * data, UINT numIndices)
 	{
 		this->bufferSize = numIndices;
 		//Load Index Data

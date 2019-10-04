@@ -34,6 +34,8 @@ private:
 	void RenderMainPanel();
 	void RenderCharts();
 
+	void updateFPSCounter();
+
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;
@@ -41,10 +43,14 @@ private:
 
 	VertexShader vertexshader;
 	PixelShader pixelshader;
-	ConstantBuffer<CB_VS_vertexshader> constantBuffer;
 
-	VertexBuffer<Vertex> vertexBuffer;
-	IndexBuffer indicesBuffer;
+	ConstantBuffer<CB_VS_vertexshader> cbMVP;
+
+	VertexBuffer<XMFLOAT3> vbMass;
+	IndexBuffer ibMass;
+
+	VertexBuffer<XMFLOAT3> vbSpring;
+	IndexBuffer ibSpring;
 
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
@@ -55,9 +61,6 @@ private:
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
-
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> myTexture;
 
 	int windowWidth = 0;
 	int windowHeight = 0;

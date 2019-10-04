@@ -226,22 +226,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 	spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
 	spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
 
-	//Create sampler description for sampler state
-	D3D11_SAMPLER_DESC sampDesc;
-	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = this->device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf()); //Create sampler state
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Failed to create sampler state.");
-		return false;
-	}
 
 	return true;
 }
@@ -289,47 +273,51 @@ bool Graphics::InitializeShaders()
 bool Graphics::InitializeScene()
 {
 	//Textured Square
-	Vertex v[] =
+	XMFLOAT3 v[] =
 	{
-		Vertex(-0.5f,  -0.5f, 0.0f, 0.0f, 1.0f), //Bottom Left   - [0]
-		Vertex(-0.5f,   0.5f, 0.0f, 0.0f, 0.0f), //Top Left      - [1]
-		Vertex(0.5f,   0.5f, 0.0f, 1.0f, 0.0f), //Top Right     - [2]
-		Vertex(0.5f,  -0.5f, 0.0f, 1.0f, 1.0f), //Bottom Right   - [3]
+		XMFLOAT3(-0.5f,  -0.5f, 0.0f), //Bottom Left   - [0]
+		XMFLOAT3(-0.5f,   0.5f, 0.0f), //Top Left      - [1]
+		XMFLOAT3(0.5f,   0.5f,  0.0f), //Top Right     - [2]
+		XMFLOAT3(0.5f,  -0.5f,  0.0f), //Bottom Right   - [3]
 	};
 
 	//Load Vertex Data
-	HRESULT hr = this->vertexBuffer.Initialize(this->device.Get(), v, ARRAYSIZE(v));
+	HRESULT hr = this->vbMass.Initialize(this->device.Get(), v, ARRAYSIZE(v));
+	if (FAILED(hr))
+	{
+		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
+		return false;
+	}
+	hr = this->vbSpring.Initialize(this->device.Get(), v, ARRAYSIZE(v));
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
 		return false;
 	}
 
-	DWORD indices[] =
+	int indices[] =
 	{
 		0, 1, 2,
 		0, 2, 3
 	};
 
 	//Load Index Data
-
-	hr = this->indicesBuffer.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
+	hr = this->ibMass.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
+	if (FAILED(hr))
+	{
+		ErrorLogger::Log(hr, "Failed to create indices buffer.");
+		return hr;
+	}
+	hr = this->ibSpring.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to create indices buffer.");
 		return hr;
 	}
 
-	//Load Texture
-	hr = DirectX::CreateWICTextureFromFile(this->device.Get(), L"Data\\Textures\\piano.png", nullptr, myTexture.GetAddressOf());
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Failed to create wic texture from file.");
-		return false;
-	}
 
 	//Initialize Constant Buffer(s)
-	hr = this->constantBuffer.Initialize(this->device.Get(), this->deviceContext.Get());
+	hr = this->cbMVP.Initialize(this->device.Get(), this->deviceContext.Get());
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to initialize constant buffer.");
