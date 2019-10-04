@@ -124,10 +124,10 @@ void MyImGui::DrawChart(std::vector<ChartData*> data, ImVec2 min_range, ImVec2 m
 
 	for (auto& cd : data) {
 		for (int i = 0; i < cd->data.size() - 1; i++) {
-			float start_x = (cd->data[i].x + min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
-			float start_y = (cd->data[i].y + min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
-			float end_x = (cd->data[i + 1].x + min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
-			float end_y = (cd->data[i + 1].y + min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
+			float start_x = (cd->data[i].x - min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
+			float start_y = (cd->data[i].y - min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
+			float end_x = (cd->data[i + 1].x - min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
+			float end_y = (cd->data[i + 1].y - min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
 			draw_list->AddLine(ImVec2(start_x, start_y), ImVec2(end_x, end_y), cd->color, 2.0f);
 		}
 	}

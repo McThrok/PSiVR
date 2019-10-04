@@ -10,9 +10,12 @@
 #include "ConstantBuffer.h"
 #include "Camera.h"
 #include "..\\Timer.h"
+#include "MyImGui.h"
+#include "..\\Simulation.h"
 #include "ImGUI\\imgui.h"
 #include "ImGUI\\imgui_impl_win32.h"
 #include "ImGUI\\imgui_impl_dx11.h"
+
 
 class Graphics
 {
@@ -20,12 +23,13 @@ public:
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
 	Camera camera;
+	Simulation * simulation;
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
-	void InitGui(HWND hwnd);
 
+	void InitGui(HWND hwnd);
 	void RendeGui();
 	void RenderMainPanel();
 	void RenderCharts();

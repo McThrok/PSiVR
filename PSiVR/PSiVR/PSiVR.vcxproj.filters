@@ -105,6 +105,9 @@
     <ClCompile Include="Graphics\MyImGui.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Simulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StringConverter.h">
@@ -190,6 +193,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\MyImGui.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Simulation.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
