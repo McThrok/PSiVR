@@ -67,7 +67,7 @@ void Engine::Update()
 	{
 		this->gfx.camera.AdjustPosition(this->gfx.camera.GetRightVector() * cameraSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed(VK_SPACE))
+	if (keyboard.KeyIsPressed('Q'))
 	{
 		this->gfx.camera.AdjustPosition(0.0f, cameraSpeed * dt, 0.0f);
 	}
@@ -232,26 +232,6 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 
 bool Graphics::InitializeShaders()
 {
-
-	std::wstring shaderfolder = L"";
-#pragma region DetermineShaderPath
-	if (IsDebuggerPresent() == TRUE)
-	{
-#ifdef _DEBUG //Debug Mode
-#ifdef _WIN64 //x64
-		shaderfolder = L"..\\x64\\Debug\\";
-#else  //x86 (Win32)
-		shaderfolder = L"..\\Debug\\";
-#endif
-#else //Release Mode
-#ifdef _WIN64 //x64
-		shaderfolder = L"..\\x64\\Release\\";
-#else  //x86 (Win32)
-		shaderfolder = L"..\\Release\\";
-#endif
-#endif
-	}
-
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
@@ -260,10 +240,10 @@ bool Graphics::InitializeShaders()
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	if (!vertexshader.Initialize(this->device, shaderfolder + L"vertexshader.cso", layout, numElements))
+	if (!vertexshader.Initialize(this->device, L"vertexshader.cso", layout, numElements))
 		return false;
 
-	if (!pixelshader.Initialize(this->device, shaderfolder + L"pixelshader.cso"))
+	if (!pixelshader.Initialize(this->device, L"pixelshader.cso"))
 		return false;
 
 
@@ -324,7 +304,7 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
-	camera.SetPosition(0.0f, 0.0f, -2.0f);
+	camera.SetPosition(2.0f, -1.0f, -2.0f);
 	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
 	return true;

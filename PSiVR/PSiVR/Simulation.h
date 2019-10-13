@@ -1,7 +1,10 @@
 #pragma once
 #include <vector>
 #include <math.h> 
+#include <DirectXMath.h>
 
+using namespace std;
+using namespace DirectX;
 
 class Simulation
 {
@@ -11,14 +14,14 @@ public:
 	int h_func, w_func;
 	bool paused = false;
 
-	std::vector<float> x;
-	std::vector<float> xt;
-	std::vector<float> xtt;
-	std::vector<float> t;
-	std::vector<float> w;
-	std::vector<float> h;
+	vector<float> x;
+	vector<float> xt;
+	vector<float> xtt;
+	vector<float> t;
+	vector<float> w;
+	vector<float> h;
 
-	Simulation() {}
+
 	void Init();
 	void Reset();
 	void Update(float dt);
