@@ -76,7 +76,14 @@ void Engine::Update()
 		this->gfx.camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
 	}
 
+	float max_time = 25;
+	if (simulation.t.back() > max_time) {
+		simulation.Reset();
+		this->gfx.ResetChartData();
+	}
+
 	simulation.Update(dt);
+	this->gfx.UpdateChartData();
 
 }
 

@@ -46,27 +46,25 @@ void Simulation::Update(float dt) {
 	if (paused)
 		return;
 
-	if (x.size() > iterations_limit)
-		Reset();
-
 	time += dt;
-	if (time < delta_time * 1000)
-		return;
 
-	time -= delta_time * 1000;
+	while (time >= delta_time * 1000)
+	{
+		AddNextX();
+		AddNextXt();
+		AddNextXtt();
+		AddNextT();
+		AddNextW();
+		AddNextH();
 
-	AddNextX();
-	AddNextXt();
-	AddNextXtt();
-	AddNextT();
-	AddNextW();
-	AddNextH();
+		time -= delta_time * 1000;
+	}
 }
 
 void Simulation::AddNextX() {
 	float x0 = x.rbegin()[1];
 	float x1 = x.back();
-	float result = (2 * x1 - x0 + (delta_time *delta_time / m) * (c*(w.back() - x1) + k * x0 / (2 * delta_time) + h.back())) / (1 + k * delta_time / (2 * m));
+	float result = (2 * x1 - x0 + (delta_time * delta_time / m) * (c * (w.back() - x1) + k * x0 / (2 * delta_time) + h.back())) / (1 + k * delta_time / (2 * m));
 	x.push_back(result);
 
 }

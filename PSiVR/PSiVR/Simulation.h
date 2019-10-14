@@ -10,7 +10,6 @@ class Simulation
 {
 public:
 	float m, c, k, delta_time, time;
-	int iterations_limit = 500;
 	int h_func, w_func;
 	bool paused = false;
 

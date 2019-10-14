@@ -16,12 +16,16 @@
 #include "ImGUI\\imgui_impl_win32.h"
 #include "ImGUI\\imgui_impl_dx11.h"
 
+using namespace std;
 
 class Graphics
 {
 public:
+	~Graphics();
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
+	void UpdateChartData();
+	void ResetChartData();
 	Camera camera;
 	Simulation * simulation;
 private:
@@ -33,8 +37,17 @@ private:
 	void RendeGui();
 	void RenderMainPanel();
 	void RenderCharts();
+	void RenderVisualisation();
 
 	void updateFPSCounter();
+
+
+	vector<ImVec2> dataX;
+	vector<ImVec2> dataXt;
+	vector<ImVec2> dataXtt;
+	vector<ImVec2> dataW;
+	vector<ImVec2> dataH;
+	vector<ImVec2> dataS;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
