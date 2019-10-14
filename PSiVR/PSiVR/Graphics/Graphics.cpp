@@ -116,13 +116,18 @@ void Graphics::RenderMainPanel() {
 	}
 
 	ImGui::SameLine();
-	if (ImGui::Button("Reset"))
+	if (ImGui::Button("Reset")) {
 		simulation->Reset();
+		ResetChartData();
+		UpdateChartData();
+	}
 
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.01f, 0.2f);
 	ImGui::SliderFloat("m", &simulation->m, 0.3, 2);
 	ImGui::SliderFloat("c", &simulation->c, 1, 10);
 	ImGui::SliderFloat("k", &simulation->k, 0, 0.5);
+	ImGui::SliderFloat("x0", &simulation->x0, 0, 2);
+	ImGui::SliderFloat("v0", &simulation->v0, 0, 2);
 
 	ImGui::Separator();
 	ImGui::Text("function w(t):");

@@ -9,7 +9,7 @@ using namespace DirectX;
 class Simulation
 {
 public:
-	float m, c, k, delta_time, time;
+	float m, c, k, delta_time, time, x0, v0;
 	int h_func, w_func;
 	bool paused = false;
 

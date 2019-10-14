@@ -8,6 +8,8 @@ void Simulation::Init() {
 	time = 0;
 	h_func = 0;
 	w_func = 0;
+	x0 = 1;
+	v0 = 0;
 
 	Reset();
 }
@@ -20,26 +22,26 @@ void Simulation::Reset() {
 	w.clear();
 	h.clear();
 
-	x.push_back(1);
-	xt.push_back(0);
+	x.push_back(x0);
+	xt.push_back(v0);
 	xtt.push_back(0);
-	t.push_back(-delta_time * 2);
+	t.push_back(-delta_time*2);
 	w.push_back(0);
 	h.push_back(0);
 
-	x.push_back(1);
-	xt.push_back(0);
+	x.push_back(x0);
+	xt.push_back(v0);
 	xtt.push_back(0);
 	AddNextT();
 	w.push_back(0);
 	h.push_back(0);
 
-	AddNextX();
-	AddNextXt();
-	AddNextXtt();
-	AddNextT();
-	AddNextW();
-	AddNextH();
+	//AddNextX();
+	//AddNextXt();
+	//AddNextXtt();
+	//AddNextT();
+	//AddNextW();
+	//AddNextH();
 }
 
 void Simulation::Update(float dt) {
