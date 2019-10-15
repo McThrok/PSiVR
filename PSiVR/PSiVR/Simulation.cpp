@@ -25,7 +25,7 @@ void Simulation::Reset() {
 	x.push_back(x0);
 	xt.push_back(v0);
 	xtt.push_back(0);
-	t.push_back(-delta_time*2);
+	t.push_back(-delta_time*3);
 	w.push_back(0);
 	h.push_back(0);
 
@@ -36,12 +36,12 @@ void Simulation::Reset() {
 	w.push_back(0);
 	h.push_back(0);
 
-	//AddNextX();
-	//AddNextXt();
-	//AddNextXtt();
-	//AddNextT();
-	//AddNextW();
-	//AddNextH();
+	AddNextX();
+	AddNextXt();
+	AddNextXtt();
+	AddNextT();
+	AddNextW();
+	AddNextH();
 }
 
 void Simulation::Update(float dt) {
