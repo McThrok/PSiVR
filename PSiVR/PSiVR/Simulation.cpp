@@ -2,8 +2,8 @@
 
 void Simulation::Init() {
 	delta_time = 0.05;
-	m = 0.75;
-	c = 5;
+	m = 1;
+	c = 0.5;
 	k = 0.1;
 	time = 0;
 	h_func = 0;

@@ -124,8 +124,8 @@ void Graphics::RenderMainPanel() {
 
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.01f, 0.2f);
 	ImGui::SliderFloat("m", &simulation->m, 0.3, 2);
-	ImGui::SliderFloat("c", &simulation->c, 1, 10);
-	ImGui::SliderFloat("k", &simulation->k, 0, 0.5);
+	ImGui::SliderFloat("c", &simulation->c, 0, 1);
+	ImGui::SliderFloat("k", &simulation->k, 0, 1);
 	ImGui::SliderFloat("x0", &simulation->x0, 0, 2);
 	ImGui::SliderFloat("v0", &simulation->v0, 0, 2);
 
@@ -157,7 +157,7 @@ void Graphics::RenderCharts() {
 		ChartData cdXt(&dataXt, IM_COL32(0, 200, 0, 255));
 		ChartData cdXtt(&dataXtt, IM_COL32(0, 0, 200, 255));
 
-		MyImGui::DrawChart({ cdXtt, cdXt, cdX }, ImVec2(0, -10), ImVec2(30, 10));
+		MyImGui::DrawChart({ cdXtt, cdXt, cdX }, ImVec2(0, -2), ImVec2(100, 2));
 		ImGui::End();
 	}
 
@@ -178,7 +178,7 @@ void Graphics::RenderCharts() {
 	{
 		ChartData cd(&dataS, IM_COL32(200, 0, 0, 255));
 
-		MyImGui::DrawChart({ cd }, ImVec2(-4, -7), ImVec2(4, 7));
+		MyImGui::DrawChart({ cd }, ImVec2(-2, -2), ImVec2(2, 2));
 		ImGui::End();
 	}
 }

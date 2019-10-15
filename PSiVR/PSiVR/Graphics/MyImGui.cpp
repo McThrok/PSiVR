@@ -69,7 +69,7 @@ void MyImGui::DrawChart(std::vector<ChartData> data, ImVec2 min_range, ImVec2 ma
 		draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
 		draw_list->AddLine(end, ImVec2(end.x, end.y - y_axis_length), IM_COL32(80, 80, 80, 255), 1.0f);
 
-		float value = (i + 1)*big_unit_value_x + min_range.x;
+		float value = (i + 1) * big_unit_value_x + min_range.x;
 		std::stringstream stream;
 		stream << std::fixed << std::setprecision(1) << value;
 		draw_list->AddText(NULL, font_size, ImVec2(end.x - 15, end.y + 15), IM_COL32(255, 255, 255, 255), stream.str().c_str());
@@ -106,7 +106,7 @@ void MyImGui::DrawChart(std::vector<ChartData> data, ImVec2 min_range, ImVec2 ma
 		draw_list->AddLine(start, end, IM_COL32(0, 0, 0, 255), 1.0f);
 		draw_list->AddLine(end, ImVec2(end.x + x_axis_length, end.y), IM_COL32(80, 80, 80, 255), 1.0f);
 
-		float value = (i + 1)*big_unit_value_y + min_range.y;
+		float value = (i + 1) * big_unit_value_y + min_range.y;
 		std::stringstream stream;
 		stream << std::fixed << std::setprecision(1) << value;
 		draw_list->AddText(NULL, font_size, ImVec2(end.x - offset + 3, end.y - 10), IM_COL32(255, 255, 255, 255), stream.str().c_str());
@@ -123,14 +123,17 @@ void MyImGui::DrawChart(std::vector<ChartData> data, ImVec2 min_range, ImVec2 ma
 	ImVec2 range_end = ImVec2(coords_start.x + unit_number_x * big_unit_offset, coords_start.y - unit_number_y * big_unit_offset);
 
 	for (auto& cd : data) {
-		for (int i = 0; i < cd.data->size() - 1; i++) {
-			float start_x = (cd.data->at(i).x - min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
-			float start_y = (cd.data->at(i).y - min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
-			float end_x = (cd.data->at(i + 1).x - min_range.x) / (max_range.x - min_range.x)*(range_end.x - coords_start.x) + coords_start.x;
-			float end_y = (cd.data->at(i + 1).y - min_range.y) / (max_range.y - min_range.y)*(range_end.y - coords_start.y) + coords_start.y;
+		for (int i = 0; i < (int)cd.data->size() - 1; i++)// funny size_t which cannot be less than 0 so size_t(0)-1 = max val of size_t
+		{
+			int a = cd.data->size() - 1;
+			float start_x = (cd.data->at(i).x - min_range.x) / (max_range.x - min_range.x) * (range_end.x - coords_start.x) + coords_start.x;
+			float start_y = (cd.data->at(i).y - min_range.y) / (max_range.y - min_range.y) * (range_end.y - coords_start.y) + coords_start.y;
+			float end_x = (cd.data->at(i + 1).x - min_range.x) / (max_range.x - min_range.x) * (range_end.x - coords_start.x) + coords_start.x;
+			float end_y = (cd.data->at(i + 1).y - min_range.y) / (max_range.y - min_range.y) * (range_end.y - coords_start.y) + coords_start.y;
 			draw_list->AddLine(ImVec2(start_x, start_y), ImVec2(end_x, end_y), cd.color, 1.5f);
 		}
 	}
+
 	draw_list->PopClipRect();
 
 }
