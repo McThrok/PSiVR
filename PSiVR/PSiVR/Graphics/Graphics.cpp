@@ -168,7 +168,7 @@ void Graphics::RenderCharts() {
 		ChartData cdW(&dataW, IM_COL32(200, 0, 0, 255));
 		ChartData cdH(&dataH, IM_COL32(0, 200, 0, 255));
 
-		MyImGui::DrawChart({ cdW, cdH }, ImVec2(0, -2), ImVec2(30, 2));
+		MyImGui::DrawChart({ cdW, cdH }, ImVec2(0, -2), ImVec2(100, 2));
 		ImGui::End();
 	}
 
