@@ -72,16 +72,16 @@ void Simulation::AddNextX() {
 }
 
 void Simulation::AddNextXt() {
-	float x0 = x.back();
-	float x2 = x.rbegin()[2];
+	float x0 = x.rbegin()[2];
+	float x2 = x.back();
 	float result = (x2 - x0) / (2 * delta_time);
 	xt.push_back(result);
 }
 
 void Simulation::AddNextXtt() {
-	float x0 = x.back();
+	float x0 = x.rbegin()[2];
 	float x1 = x.rbegin()[1];
-	float x2 = x.rbegin()[2];
+	float x2 = x.back();
 	float result = (x2 - 2 * x1 + x0) / (delta_time * delta_time);
 	xtt.push_back(result);
 }
