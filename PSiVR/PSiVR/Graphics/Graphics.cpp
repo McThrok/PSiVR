@@ -63,6 +63,7 @@ void Graphics::UpdateChartData()
 		dataW.push_back(ImVec2(simulation->t[i], simulation->w[i]));
 		dataH.push_back(ImVec2(simulation->t[i], simulation->h[i]));
 		dataS.push_back(ImVec2(simulation->x[i], simulation->xt[i]));
+		dataXDiff.push_back(ImVec2(simulation->t[i], simulation->xTrue[i] - simulation->x[i]));
 	}
 }
 
@@ -74,6 +75,7 @@ void Graphics::ResetChartData()
 	dataW.clear();
 	dataH.clear();
 	dataS.clear();
+	dataXDiff.clear();
 }
 
 void Graphics::InitGui(HWND hwnd) {
@@ -158,8 +160,8 @@ void Graphics::RenderCharts() {
 		ChartData cdXtt(&dataXtt, IM_COL32(0, 0, 200, 255));
 
 		MyImGui::DrawChart({ cdXtt, cdXt, cdX }, ImVec2(0, -2), ImVec2(100, 2));
-		ImGui::End();
 	}
+	ImGui::End();
 
 	ImGui::SetNextWindowSize(ImVec2(1570, 230), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(320, 750), ImGuiCond_Once);
@@ -169,8 +171,8 @@ void Graphics::RenderCharts() {
 		ChartData cdH(&dataH, IM_COL32(0, 200, 0, 255));
 
 		MyImGui::DrawChart({ cdW, cdH }, ImVec2(0, -2), ImVec2(100, 2));
-		ImGui::End();
 	}
+	ImGui::End();
 
 	ImGui::SetNextWindowSize(ImVec2(350, 350), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(1540, 10), ImGuiCond_Once);
@@ -179,8 +181,18 @@ void Graphics::RenderCharts() {
 		ChartData cd(&dataS, IM_COL32(200, 0, 0, 255));
 
 		MyImGui::DrawChart({ cd }, ImVec2(-2, -2), ImVec2(2, 2));
-		ImGui::End();
 	}
+	ImGui::End();
+
+	ImGui::SetNextWindowSize(ImVec2(1570, 350), ImGuiCond_Once);
+	ImGui::SetNextWindowPos(ImVec2(320, 10), ImGuiCond_Once);
+	if (ImGui::Begin("Error for k=0.1, c=1, m=1"))
+	{
+		ChartData cd(&dataXDiff, IM_COL32(200, 0, 0, 255));
+
+		MyImGui::DrawChart({ cd }, ImVec2(0, -2), ImVec2(100, 2));
+	}
+	ImGui::End();
 }
 
 void Graphics::RenderVisualisation()

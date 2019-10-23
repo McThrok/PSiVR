@@ -49,6 +49,8 @@ private:
 	vector<ImVec2> dataH;
 	vector<ImVec2> dataS;
 
+	vector<ImVec2> dataXDiff;
+
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;

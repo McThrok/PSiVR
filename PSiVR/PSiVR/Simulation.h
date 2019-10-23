@@ -14,6 +14,7 @@ public:
 	bool paused = false;
 
 	vector<float> x;
+	vector<float> xTrue;
 	vector<float> xt;
 	vector<float> xtt;
 	vector<float> t;
@@ -26,6 +27,7 @@ public:
 	void Update(float dt);
 
 private:
+	void AddNextXTrue();
 	void AddNextX();
 	void AddNextXt();
 	void AddNextXtt();

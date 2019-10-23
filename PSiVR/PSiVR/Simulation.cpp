@@ -3,7 +3,7 @@
 void Simulation::Init() {
 	delta_time = 0.05;
 	m = 1;
-	c = 0.5;
+	c = 1;
 	k = 0.1;
 	time = 0;
 	h_func = 0;
@@ -21,13 +21,15 @@ void Simulation::Reset() {
 	t.clear();
 	w.clear();
 	h.clear();
+	xTrue.clear();
 
 	x.push_back(x0);
 	xt.push_back(v0);
 	xtt.push_back(0);
-	t.push_back(-delta_time*3);
+	t.push_back(-delta_time * 3);
 	w.push_back(0);
 	h.push_back(0);
+	AddNextXTrue();
 
 	x.push_back(x0);
 	xt.push_back(v0);
@@ -35,6 +37,7 @@ void Simulation::Reset() {
 	AddNextT();
 	w.push_back(0);
 	h.push_back(0);
+	AddNextXTrue();
 
 	AddNextX();
 	AddNextXt();
@@ -42,6 +45,8 @@ void Simulation::Reset() {
 	AddNextT();
 	AddNextW();
 	AddNextH();
+	AddNextXTrue();
+
 }
 
 void Simulation::Update(float dt) {
@@ -50,7 +55,7 @@ void Simulation::Update(float dt) {
 
 	time += dt;
 
-	while (time >= delta_time * 1000)
+	while (time >= delta_time * 100)
 	{
 		AddNextX();
 		AddNextXt();
@@ -58,9 +63,23 @@ void Simulation::Update(float dt) {
 		AddNextT();
 		AddNextW();
 		AddNextH();
+		AddNextXTrue();
 
-		time -= delta_time * 1000;
+		time -= delta_time * 100;
 	}
+}
+
+void Simulation::AddNextXTrue()
+{
+	float w = sqrtf(3.99) / 2;
+
+	float c1 = 1;
+	float c2 = 0.05 / w;
+
+	float time = t.back();
+	float x = c1 * expf(-0.05*time) * (c1 * cosf(w * time) + c2 * sinf(w * time));
+
+	xTrue.push_back(x);
 }
 
 void Simulation::AddNextX() {
