@@ -24,8 +24,6 @@ public:
 	~Graphics();
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
-	void UpdateChartData();
-	void ResetChartData();
 	Camera camera;
 	Simulation * simulation;
 private:
@@ -36,20 +34,11 @@ private:
 	void InitGui(HWND hwnd);
 	void RendeGui();
 	void RenderMainPanel();
-	void RenderCharts();
 	void RenderVisualisation();
 
 	void updateFPSCounter();
 
 
-	vector<ImVec2> dataX;
-	vector<ImVec2> dataXt;
-	vector<ImVec2> dataXtt;
-	vector<ImVec2> dataW;
-	vector<ImVec2> dataH;
-	vector<ImVec2> dataS;
-
-	vector<ImVec2> dataXDiff;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
@@ -61,11 +50,8 @@ private:
 
 	ConstantBuffer<CB_VS_vertexshader> cbMVP;
 
-	VertexBuffer<XMFLOAT3> vbMass;
-	IndexBuffer ibMass;
-
-	VertexBuffer<XMFLOAT3> vbSpring;
-	IndexBuffer ibSpring;
+	VertexBuffer<XMFLOAT3> vbCube;
+	IndexBuffer ibCube;
 
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;

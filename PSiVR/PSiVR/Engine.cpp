@@ -76,15 +76,7 @@ void Engine::Update()
 		this->gfx.camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
 	}
 
-	float max_time = 50;
-	if (simulation.t.back() > max_time) {
-		simulation.Reset();
-		this->gfx.ResetChartData();
-	}
-
 	simulation.Update(dt);
-	this->gfx.UpdateChartData();
-
 }
 
 void Engine::RenderFrame()
@@ -269,18 +261,13 @@ bool Graphics::InitializeScene()
 	};
 
 	//Load Vertex Data
-	HRESULT hr = this->vbMass.Initialize(this->device.Get(), v, ARRAYSIZE(v));
+	HRESULT hr = this->vbCube.Initialize(this->device.Get(), v, ARRAYSIZE(v));
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
 		return false;
 	}
-	hr = this->vbSpring.Initialize(this->device.Get(), v, ARRAYSIZE(v));
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
-		return false;
-	}
+
 
 	int indices[] =
 	{
@@ -289,13 +276,7 @@ bool Graphics::InitializeScene()
 	};
 
 	//Load Index Data
-	hr = this->ibMass.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
-	if (FAILED(hr))
-	{
-		ErrorLogger::Log(hr, "Failed to create indices buffer.");
-		return hr;
-	}
-	hr = this->ibSpring.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
+	hr = this->ibCube.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to create indices buffer.");

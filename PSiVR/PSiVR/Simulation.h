@@ -9,31 +9,12 @@ using namespace DirectX;
 class Simulation
 {
 public:
-	float m, c, k, delta_time, time, x0, v0;
-	int h_func, w_func;
-	bool paused = false;
-
-	vector<float> x;
-	vector<float> xTrue;
-	vector<float> xt;
-	vector<float> xtt;
-	vector<float> t;
-	vector<float> w;
-	vector<float> h;
-
+	float delta_time;
+	float time;
+	bool paused;
 
 	void Init();
 	void Reset();
 	void Update(float dt);
-
-private:
-	void AddNextXTrue();
-	void AddNextX();
-	void AddNextXt();
-	void AddNextXtt();
-	void AddNextT();
-	void AddNextW();
-	void AddNextH();
-	float GetFunc(int func);
 };
 
