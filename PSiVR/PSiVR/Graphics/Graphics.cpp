@@ -110,8 +110,8 @@ void Graphics::RenderVisualisation()
 
 	UINT offset = 0;
 
-	cbVS.data.worldMatrix = simulation->default_rotation;
-	cbVS.data.wvpMatrix = simulation->default_rotation * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	cbVS.data.worldMatrix = simulation->GetWorldMatrix();
+	cbVS.data.wvpMatrix = cbVS.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 
 	if (!cbVS.ApplyChanges()) return;
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbVS.GetAddressOf());
@@ -314,10 +314,10 @@ bool Graphics::InitializeScene()
 		VertexPN(+0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
 		VertexPN(-0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
 
-		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
-		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
-		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
-		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f)
+		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, -1.0f, 0.0f),
+		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, -1.0f, 0.0f),
+		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f),
+		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f)
 	};
 
 	int indices[] =
@@ -405,7 +405,7 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
-	camera.SetPosition(2.0f, -1.0f, -2.0f);
+	camera.SetPosition(0, -5.0f, 0);
 	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
 	return true;
