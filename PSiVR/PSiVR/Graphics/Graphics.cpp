@@ -289,35 +289,35 @@ bool Graphics::InitializeShaders()
 bool Graphics::InitializeScene()
 {
 	VertexPN v[] = {
-		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
-		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
-		VertexPN(+0.5f, +0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
-		VertexPN(-0.5f, +0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
+		VertexPN(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f),
+		VertexPN(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f),
+		VertexPN(1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f),
+		VertexPN(0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f),
 
-		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
-		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
-		VertexPN(-0.5f, +0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
-		VertexPN(+0.5f, +0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
+		VertexPN(1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+		VertexPN(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+		VertexPN(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+		VertexPN(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f),
 
-		VertexPN(+0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f),
-		VertexPN(+0.5f, -0.5f, +0.5f, 1.0f, 0.0f, 0.0f),
-		VertexPN(+0.5f, +0.5f, +0.5f, 1.0f, 0.0f, 0.0f),
-		VertexPN(+0.5f, +0.5f, -0.5f, 1.0f, 0.0f, 0.0f),
+		VertexPN(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
+		VertexPN(1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f),
+		VertexPN(1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
+		VertexPN(1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f),
 
-		VertexPN(-0.5f, -0.5f, +0.5f, -1.0f, 0.0f, 0.0f),
-		VertexPN(-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f),
-		VertexPN(-0.5f, +0.5f, -0.5f, -1.0f, 0.0f, 0.0f),
-		VertexPN(-0.5f, +0.5f, +0.5f, -1.0f, 0.0f, 0.0f),
+		VertexPN(0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f),
+		VertexPN(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+		VertexPN(0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f),
+		VertexPN(0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f),
 
-		VertexPN(-0.5f, +0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
-		VertexPN(+0.5f, +0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
-		VertexPN(+0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
-		VertexPN(-0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+		VertexPN(1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+		VertexPN(1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+		VertexPN(0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f),
 
-		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, -1.0f, 0.0f),
-		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, -1.0f, 0.0f),
-		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f),
-		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f)
+		VertexPN(0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f),
+		VertexPN(1.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f),
+		VertexPN(1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
+		VertexPN(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f)
 	};
 
 	int indices[] =
