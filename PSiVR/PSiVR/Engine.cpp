@@ -71,7 +71,7 @@ void Engine::Update()
 	{
 		this->gfx.camera.AdjustPosition(0.0f, cameraSpeed * dt, 0.0f);
 	}
-	if (keyboard.KeyIsPressed('Z'))
+	if (keyboard.KeyIsPressed('E'))
 	{
 		this->gfx.camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
 	}
@@ -250,12 +250,31 @@ bool Graphics::InitializeShaders()
 
 bool Graphics::InitializeScene()
 {
-	VertexPN v[] =
-	{
-		VertexPN(-0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f), //Bottom Left   - [0]
-		VertexPN(-0.5f,   0.5f, 0.0f, 0.0f, 0.0f, 1.0f), //Top Left      - [1]
-		VertexPN(0.5f,   0.5f,  0.0f, 0.0f, 0.0f, 1.0f), //Top Right     - [2]
-		VertexPN(0.5f,  -0.5f,  0.0f, 0.0f, 0.0f, 1.0f), //Bottom Right   - [3]
+	VertexPN v[] = {
+		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
+		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
+		VertexPN(+0.5f, +0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
+		VertexPN(-0.5f, +0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
+		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
+		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
+		VertexPN(-0.5f, +0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
+		VertexPN(+0.5f, +0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
+		VertexPN(+0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f),
+		VertexPN(+0.5f, -0.5f, +0.5f, 1.0f, 0.0f, 0.0f),
+		VertexPN(+0.5f, +0.5f, +0.5f, 1.0f, 0.0f, 0.0f),
+		VertexPN(+0.5f, +0.5f, -0.5f, 1.0f, 0.0f, 0.0f),
+		VertexPN(-0.5f, -0.5f, +0.5f, -1.0f, 0.0f, 0.0f),
+		VertexPN(-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f),
+		VertexPN(-0.5f, +0.5f, -0.5f, -1.0f, 0.0f, 0.0f),
+		VertexPN(-0.5f, +0.5f, +0.5f, -1.0f, 0.0f, 0.0f),
+		VertexPN(-0.5f, +0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(+0.5f, +0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(+0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(-0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
+		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f)
 	};
 
 	//Load Vertex Data
@@ -266,11 +285,14 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
-
 	int indices[] =
 	{
-		0, 1, 2,
-		0, 2, 3
+		0,3,2,0,2,1,
+		4,7,6,4,6,5,
+		8,11,10,8,10,9,
+		12,15,14,12,14,13,
+		16,19,18,16,18,17,
+		20,23,22,20,22,21
 	};
 
 	//Load Index Data
