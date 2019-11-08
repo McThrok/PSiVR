@@ -110,11 +110,11 @@ void Graphics::RenderVisualisation()
 
 	UINT offset = 0;
 
-	cbMVP.data.mat = XMMatrixIdentity() *camera.GetViewMatrix()* camera.GetProjectionMatrix();
-	cbMVP.data.mat = DirectX::XMMatrixTranspose(cbMVP.data.mat);
+	cbVS.data.worldMatrix = XMMatrixIdentity();
+	cbVS.data.wvpMatrix = camera.GetViewMatrix() * camera.GetProjectionMatrix();
 
-	if (!cbMVP.ApplyChanges()) return;
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbMVP.GetAddressOf());
+	if (!cbVS.ApplyChanges()) return;
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbVS.GetAddressOf());
 	this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
 	this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
 	this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);

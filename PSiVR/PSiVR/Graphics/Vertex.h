@@ -10,3 +10,13 @@ struct Vertex
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT2 texCoord;
 };
+
+struct VertexPN
+{
+	VertexPN() {}
+	VertexPN(float x, float y, float z, float nx, float ny, float nz)
+		: pos(x, y, z), normal(nx, ny, nz) {}
+
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 normal;
+};

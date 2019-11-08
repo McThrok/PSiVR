@@ -48,16 +48,15 @@ private:
 	VertexShader vertexshader;
 	PixelShader pixelshader;
 
-	ConstantBuffer<CB_VS_vertexshader> cbMVP;
+	ConstantBuffer<CB_VS_vertexshader> cbVS;
 
-	VertexBuffer<XMFLOAT3> vbCube;
+	VertexBuffer<VertexPN> vbCube;
 	IndexBuffer ibCube;
 
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
-
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;

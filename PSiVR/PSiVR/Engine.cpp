@@ -234,30 +234,28 @@ bool Graphics::InitializeShaders()
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
-		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 	};
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	if (!vertexshader.Initialize(this->device, L"vertexshader.cso", layout, numElements))
+	if (!vertexshader.Initialize(this->device, L"my_vs.cso", layout, numElements))
 		return false;
 
-	if (!pixelshader.Initialize(this->device, L"pixelshader.cso"))
+	if (!pixelshader.Initialize(this->device, L"my_ps.cso"))
 		return false;
-
 
 	return true;
 }
 
 bool Graphics::InitializeScene()
 {
-	//Textured Square
-	XMFLOAT3 v[] =
+	VertexPN v[] =
 	{
-		XMFLOAT3(-0.5f,  -0.5f, 0.0f), //Bottom Left   - [0]
-		XMFLOAT3(-0.5f,   0.5f, 0.0f), //Top Left      - [1]
-		XMFLOAT3(0.5f,   0.5f,  0.0f), //Top Right     - [2]
-		XMFLOAT3(0.5f,  -0.5f,  0.0f), //Bottom Right   - [3]
+		VertexPN(-0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f), //Bottom Left   - [0]
+		VertexPN(-0.5f,   0.5f, 0.0f, 0.0f, 0.0f, 1.0f), //Top Left      - [1]
+		VertexPN(0.5f,   0.5f,  0.0f, 0.0f, 0.0f, 1.0f), //Top Right     - [2]
+		VertexPN(0.5f,  -0.5f,  0.0f, 0.0f, 0.0f, 1.0f), //Bottom Right   - [3]
 	};
 
 	//Load Vertex Data
@@ -285,7 +283,7 @@ bool Graphics::InitializeScene()
 
 
 	//Initialize Constant Buffer(s)
-	hr = this->cbMVP.Initialize(this->device.Get(), this->deviceContext.Get());
+	hr = this->cbVS.Initialize(this->device.Get(), this->deviceContext.Get());
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to initialize constant buffer.");
