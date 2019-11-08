@@ -14,6 +14,10 @@ struct Vertex
 struct VertexPN
 {
 	VertexPN() {}
+
+	VertexPN(DirectX::XMFLOAT3 _pos, DirectX::XMFLOAT3 _normal)
+		: pos(_pos), normal(_normal) {}
+
 	VertexPN(float x, float y, float z, float nx, float ny, float nz)
 		: pos(x, y, z), normal(nx, ny, nz) {}
 

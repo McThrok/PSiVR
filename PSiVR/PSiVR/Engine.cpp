@@ -233,8 +233,8 @@ bool Graphics::InitializeShaders()
 {
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
-		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	UINT numElements = ARRAYSIZE(layout);
@@ -250,50 +250,116 @@ bool Graphics::InitializeShaders()
 
 bool Graphics::InitializeScene()
 {
-	VertexPN v[] = {
+	/*VertexPN v[] = {
 		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
 		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
 		VertexPN(+0.5f, +0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
 		VertexPN(-0.5f, +0.5f, -0.5f, 0.0f, 0.0f, -1.0f),
+
 		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
 		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
 		VertexPN(-0.5f, +0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
 		VertexPN(+0.5f, +0.5f, +0.5f, 0.0f, 0.0f, 1.0f),
+
 		VertexPN(+0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f),
 		VertexPN(+0.5f, -0.5f, +0.5f, 1.0f, 0.0f, 0.0f),
 		VertexPN(+0.5f, +0.5f, +0.5f, 1.0f, 0.0f, 0.0f),
 		VertexPN(+0.5f, +0.5f, -0.5f, 1.0f, 0.0f, 0.0f),
+
 		VertexPN(-0.5f, -0.5f, +0.5f, -1.0f, 0.0f, 0.0f),
 		VertexPN(-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f),
 		VertexPN(-0.5f, +0.5f, -0.5f, -1.0f, 0.0f, 0.0f),
 		VertexPN(-0.5f, +0.5f, +0.5f, -1.0f, 0.0f, 0.0f),
+
 		VertexPN(-0.5f, +0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
 		VertexPN(+0.5f, +0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
 		VertexPN(+0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
 		VertexPN(-0.5f, +0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
+
 		VertexPN(-0.5f, -0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
 		VertexPN(+0.5f, -0.5f, +0.5f, 0.0f, 1.0f, 0.0f),
 		VertexPN(+0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
 		VertexPN(-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f)
+	};*/
+
+	XMFLOAT3 p[] = {
+		{ 0.000000 ,0.000000, 0.000000 },
+		{ 0.000000 ,1.154701, 1.632993 },
+		{ -1.414214 ,1.154701, -0.816497 },
+		{ -1.414214 ,2.309401, 0.816497 },
+		{ 1.414214 ,1.154701, -0.816497 },
+		{ 1.414214 ,2.309401, 0.816497 },
+		{ 0.000000 ,2.309401, -1.632993 },
+		{ 0.000000 ,3.464102, 0.000000 },
 	};
 
+	XMFLOAT3 n[] = {
+		{ -0.7071, -0.5774, 0.4082 },
+		{ -0.7071, 0.5774 , -0.4082},
+		{ 0.7071 , 0.5774 , -0.4082},
+		{ 0.7071 , -0.5774, 0.4082 },
+		{ -0.0000, -0.5774, -0.8165},
+		{ 0.0000 , 0.5774 ,0.8165 },
+	};
+
+	VertexPN v[] = {
+		VertexPN(p[1],n[0]),VertexPN(p[2],n[0]),VertexPN(p[0],n[0]),
+		VertexPN(p[3],n[1]),VertexPN(p[6],n[1]),VertexPN(p[2],n[1]),
+
+		VertexPN(p[7],n[2]),VertexPN(p[4],n[2]),VertexPN(p[6],n[2]),
+		VertexPN(p[4],n[3]),VertexPN(p[1],n[3]),VertexPN(p[0],n[3]),
+
+		VertexPN(p[6],n[4]),VertexPN(p[0],n[4]),VertexPN(p[2],n[4]),
+		VertexPN(p[3],n[5]),VertexPN(p[5],n[5]),VertexPN(p[7],n[5]),
+
+		VertexPN(p[1],n[0]),VertexPN(p[3],n[0]),VertexPN(p[2],n[0]),
+		VertexPN(p[3],n[1]),VertexPN(p[7],n[1]),VertexPN(p[6],n[1]),
+
+		VertexPN(p[7],n[2]),VertexPN(p[5],n[2]),VertexPN(p[4],n[2]),
+		VertexPN(p[4],n[3]),VertexPN(p[5],n[3]),VertexPN(p[1],n[3]),
+
+		VertexPN(p[6],n[4]),VertexPN(p[4],n[4]),VertexPN(p[0],n[4]),
+		VertexPN(p[3],n[5]),VertexPN(p[1],n[5]),VertexPN(p[5],n[5]),
+	};
+	//f 2//1 3//1 1//1
+	//f 4//2 7//2 3//2
+
+	//f 8//3 5//3 7//3
+	//f 5//4 2//4 1//4
+
+	//f 7//5 1//5 3//5
+	//f 4//6 6//6 8//6
+
+	//f 2//1 4//1 3//1
+	//f 4//2 8//2 7//2
+
+	//f 8//3 6//3 5//3
+	//f 5//4 6//4 2//4
+
+	//f 7//5 5//5 1//5
+	//f 4//6 2//6 6//6
+
 	//Load Vertex Data
-	HRESULT hr = this->vbCube.Initialize(this->device.Get(), v, ARRAYSIZE(v));
+		HRESULT hr = this->vbCube.Initialize(this->device.Get(), v, ARRAYSIZE(v));
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
 		return false;
 	}
 
-	int indices[] =
-	{
-		0,3,2,0,2,1,
-		4,7,6,4,6,5,
-		8,11,10,8,10,9,
-		12,15,14,12,14,13,
-		16,19,18,16,18,17,
-		20,23,22,20,22,21
-	};
+	int indices[36];
+	for (int i = 0; i < 36; i++)
+		indices[i] = i;
+
+	//int indices[] =
+	//{
+	//	0,3,2,0,2,1,
+	//	4,7,6,4,6,5,
+	//	8,11,10,8,10,9,
+	//	12,15,14,12,14,13,
+	//	16,19,18,16,18,17,
+	//	20,23,22,20,22,21
+	//};
 
 	//Load Index Data
 	hr = this->ibCube.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
