@@ -2,10 +2,14 @@
 
 void Simulation::Init() {
 
-	default_rotation = XMMatrixRotationY(-XM_PI / 4) * XMMatrixRotationZ(-XM_PI / 4);
+	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XM_PI / 4);
 	default_rotation = XMMatrixIdentity();
 
-	XMFLOAT3X3 i = XMFLOAT3X3(2.0f / 3.0f, -(1.0f / 4.0f), -(1.0f / 4.0f), -(1.0f / 4.0f), 2.0f / 3.0f, -(1.0f / 4.0f), -(1.0f / 4.0f), -(1.0f / 4.0f), 2.0f / 3.0f);
+	XMFLOAT3X3 i = XMFLOAT3X3(
+		2.0f / 3.0f, -0.25, -0.25,
+		-0.25, 2.0f / 3.0f, -0.25,
+		-0.25, -0.25, 2.0f / 3.0f);
+
 	I = default_rotation * XMLoadFloat3x3(&i) * XMMatrixTranspose(default_rotation);
 
 	g = { 0,0,-1 };
@@ -14,14 +18,11 @@ void Simulation::Init() {
 }
 
 void Simulation::Reset() {
-	XMStoreFloat4(&Q[0], XMQuaternionIdentity());
-	XMStoreFloat4(&Q[1], XMQuaternionIdentity());
-
-	W[0] = { 0,0,1 };
-	W[1] = { 0,0,1 };
+	XMStoreFloat4(&Q, XMQuaternionIdentity());
+	W = { 0,0,0 };
 
 	time = 0;
-	delta_time = 0.0001;
+	delta_time = 0.001;
 	paused = false;
 	gravityUp = false;
 }
@@ -40,23 +41,42 @@ void Simulation::Update(float dt) {
 }
 
 void Simulation::Update() {
-	XMVECTOR new_Q = delta_time * XMVector3Rotate(XMLoadFloat3(&W[1]), XMLoadFloat4(&Q[1])) + XMLoadFloat4(&Q[0]);
+	XMVECTOR q = XMLoadFloat4(&Q);
+	XMVECTOR w = XMLoadFloat3(&W);
 
-	XMVECTOR N = { 0,0,0 };// XMVector3Normalize(XMVector3Rotate(XMLoadFloat3(&g), XMQuaternionInverse(XMLoadFloat4(&Q[1]))));
-	//XMVECTOR N = XMVector3TransformNormal(XMVector3Rotate(XMLoadFloat3(&g), XMQuaternionInverse(XMLoadFloat4(&Q[1]))), XMMatrixTranspose(default_rotation));
-	//XMVECTOR N = XMVector3TransformNormal(XMLoadFloat3(&g), default_rotation);
-	XMVECTOR IWW = XMVector3Cross(XMVector3Transform(XMLoadFloat3(&W[1]), I), XMLoadFloat3(&W[1]));
-	XMVECTOR new_W = 2 * delta_time * (XMVector3Transform(N + IWW, XMMatrixInverse(nullptr, I))) + XMLoadFloat3(&W[0]);
+	XMVECTOR k1 = delta_time * 0.5f * XMVector3Rotate(w, q);
+	XMVECTOR k2 = delta_time * 0.5f * XMVector3Rotate(w, q + k1 / 2);
+	XMVECTOR k3 = delta_time * 0.5f * XMVector3Rotate(w, q + k2 / 2);
+	XMVECTOR k4 = delta_time * 0.5f * XMVector3Rotate(w, q + k3);
 
-	Q[0] = Q[1];
-	XMStoreFloat4(&Q[1], XMQuaternionNormalize(new_Q));
+	XMVECTOR newQ = XMQuaternionNormalize(XMLoadFloat4(&Q) + (k1 + k2 + k3 + k4) / 6);
 
-	W[0] = W[1];
-	XMStoreFloat3(&W[1], new_W);
 
+	XMMATRIX invI = XMMatrixInverse(nullptr, I);
+	//XMVECTOR N = XMVector3Normalize(XMVector3TransformNormal(XMVector3Rotate(XMLoadFloat3(&g), XMQuaternionInverse(q)), XMMatrixTranspose(default_rotation)));
+	//XMVECTOR N = XMVector3Normalize(XMVector3Rotate(XMVector3TransformNormal(XMLoadFloat3(&g), default_rotation), q));
+	XMVECTOR N = XMVector3Normalize(XMVector3TransformNormal(XMLoadFloat3(&g), default_rotation));
+
+	XMVECTOR Iww = XMVector3Cross(XMVector3Transform(w, I), w);
+	k1 = delta_time * XMVector3Transform(N + Iww, invI);
+
+	Iww = XMVector3Cross(XMVector3Transform(w + k1 / 2, I), w + k1 / 2);
+	k2 = delta_time * XMVector3Transform(N + Iww, invI);
+
+	Iww = XMVector3Cross(XMVector3Transform(w + k2 / 2, I), w + k2 / 2);
+	k3 = delta_time * XMVector3Transform(N + Iww, invI);
+
+	Iww = XMVector3Cross(XMVector3Transform(w + k3, I), w + k3);
+	k4 = delta_time * XMVector3Transform(N + Iww, invI);
+
+	XMVECTOR newW = XMLoadFloat3(&W) + (k1 + k2 + k3 + k4) / 6;
+
+
+	XMStoreFloat4(&Q, newQ);
+	XMStoreFloat3(&W, newW);
 }
 
 XMMATRIX Simulation::GetWorldMatrix()
 {
-	return default_rotation * XMMatrixRotationQuaternion(XMLoadFloat4(&Q[1]));
+	return default_rotation * XMMatrixRotationQuaternion(XMLoadFloat4(&Q));
 }

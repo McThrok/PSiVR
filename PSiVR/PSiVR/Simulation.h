@@ -15,8 +15,8 @@ public:
 	bool paused;
 	bool gravityUp;
 
-	XMFLOAT4 Q[2];
-	XMFLOAT3 W[2];
+	XMFLOAT4 Q;
+	XMFLOAT3 W;
 	XMMATRIX I;
 	XMFLOAT3 g;
 	
