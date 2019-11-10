@@ -18,7 +18,7 @@ public:
 	XMFLOAT4 Q;
 	XMFLOAT3 W;
 	XMMATRIX I;
-	XMFLOAT3 g;
+	XMFLOAT3 G;
 	
 
 	void Init();

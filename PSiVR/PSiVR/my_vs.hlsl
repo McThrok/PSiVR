@@ -23,7 +23,7 @@ VS_OUTPUT main(VS_INPUT input)
 	float3 pos = input.inPos;
 
 	output.outPosition = mul(wvpMatrix, float4(pos, 1.0f));
-	output.outNormal = normalize(mul( worldMatrix,float4(input.inNormal, 0.0f)));
+	output.outNormal = normalize(mul(worldMatrix, float4(input.inNormal, 0.0f)));
 	output.outWorldPos = mul(worldMatrix, float4(pos, 1.0f));
 
 	return output;

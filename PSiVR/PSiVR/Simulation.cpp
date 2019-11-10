@@ -4,6 +4,7 @@ void Simulation::Init() {
 
 	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XM_PI / 4);
 	default_rotation = XMMatrixIdentity();
+	//default_rotation = XMMatrixRotationZ(-3*XM_PI / 4) * XMMatrixRotationY(-3 * XM_PI / 4);
 
 	XMFLOAT3X3 i = XMFLOAT3X3(
 		2.0f / 3.0f, -0.25, -0.25,
@@ -12,7 +13,7 @@ void Simulation::Init() {
 
 	I = default_rotation * XMLoadFloat3x3(&i) * XMMatrixTranspose(default_rotation);
 
-	g = { 0,0,-1 };
+	G = { 0,0,-1 };
 
 	Reset();
 }
@@ -43,11 +44,15 @@ void Simulation::Update(float dt) {
 void Simulation::Update() {
 	XMVECTOR q = XMLoadFloat4(&Q);
 	XMVECTOR w = XMLoadFloat3(&W);
+	XMVECTOR w0 = { W.x,W.y,W.z,0.0f };
 
-	XMVECTOR k1 = delta_time * 0.5f * XMVector3Rotate(w, q);
-	XMVECTOR k2 = delta_time * 0.5f * XMVector3Rotate(w, q + k1 / 2);
-	XMVECTOR k3 = delta_time * 0.5f * XMVector3Rotate(w, q + k2 / 2);
-	XMVECTOR k4 = delta_time * 0.5f * XMVector3Rotate(w, q + k3);
+	//if (W.y > 1.178)
+	//	paused = true;
+
+	XMVECTOR k1 = delta_time * 0.5f * XMQuaternionMultiply((q), w0);
+	XMVECTOR k2 = delta_time * 0.5f * XMQuaternionMultiply((q + k1 / 2), w0);
+	XMVECTOR k3 = delta_time * 0.5f * XMQuaternionMultiply((q + k2 / 2), w0);
+	XMVECTOR k4 = delta_time * 0.5f * XMQuaternionMultiply((q + k3), w0);
 
 	XMVECTOR newQ = XMQuaternionNormalize(XMLoadFloat4(&Q) + (k1 + k2 + k3 + k4) / 6);
 
@@ -55,7 +60,13 @@ void Simulation::Update() {
 	XMMATRIX invI = XMMatrixInverse(nullptr, I);
 	//XMVECTOR N = XMVector3Normalize(XMVector3TransformNormal(XMVector3Rotate(XMLoadFloat3(&g), XMQuaternionInverse(q)), XMMatrixTranspose(default_rotation)));
 	//XMVECTOR N = XMVector3Normalize(XMVector3Rotate(XMVector3TransformNormal(XMLoadFloat3(&g), default_rotation), q));
-	XMVECTOR N = XMVector3Normalize(XMVector3TransformNormal(XMLoadFloat3(&g), default_rotation));
+	XMVECTOR g = XMVector3Normalize(XMVector3TransformNormal(XMLoadFloat3(&G), default_rotation));
+	XMVECTOR r = XMVector3TransformCoord({ 0.5,0.5,0.5 }, default_rotation);
+
+	XMMATRIX rot = XMMatrixRotationQuaternion(XMLoadFloat4(&Q));
+	XMVECTOR gRot = XMVector3Rotate(g, XMQuaternionInverse(q));
+	//XMVECTOR gRot = XMVector3TransformNormal(g, rot);
+	XMVECTOR N = XMVector3Cross(r, gRot);
 
 	XMVECTOR Iww = XMVector3Cross(XMVector3Transform(w, I), w);
 	k1 = delta_time * XMVector3Transform(N + Iww, invI);
