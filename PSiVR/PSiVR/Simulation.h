@@ -18,11 +18,15 @@ public:
 	bool paused;
 	bool gravityUp;
 
+	float simulationSpeed;
+	float density;
+	Vector3 startVelocity;
+
 	Quaternion Q;
 	Vector3 W;
 	Matrix I;
 	Vector3 G;
-	
+
 
 	void Init();
 	void Reset();

@@ -89,12 +89,20 @@ void Graphics::RenderMainPanel() {
 			simulation->paused = true;
 	}
 
-	/*ImGui::SameLine();
+	ImGui::SameLine();
 	if (ImGui::Button("Reset")) {
 		simulation->Reset();
-	}*/
+	}
 
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.01f, 0.2f);
+
+	ImGui::Checkbox("show cube", &guiData->showCube);
+	ImGui::Checkbox("show gravity", &guiData->showGravity);
+	ImGui::Checkbox("show probes", &guiData->showProbes);
+	ImGui::Checkbox("show diagonal", &guiData->showDiagonal);
+
+	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
+	ImGui::SliderFloat3("angular velocity", &simulation->startVelocity.x,0,5);
 
 	ImGui::End();
 }
@@ -111,6 +119,16 @@ void Graphics::RenderVisualisation()
 	UINT offset = 0;
 
 	cbVS.data.worldMatrix = simulation->GetWorldMatrix();
+	cbVS.data.wvpMatrix = cbVS.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+
+	if (!cbVS.ApplyChanges()) return;
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbVS.GetAddressOf());
+	this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
+	this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
+	this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
+
+
+	cbVS.data.worldMatrix = XMMatrixTranslation(-0.5f, -0.5f, -0.5f) * XMMatrixScaling(0.2f, 0.2f, 0.2f);
 	cbVS.data.wvpMatrix = cbVS.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 
 	if (!cbVS.ApplyChanges()) return;

@@ -2,8 +2,14 @@
 
 void Simulation::Init() {
 
+	simulationSpeed = 1;
+	density = 1;
+	startVelocity = Vector3::Zero;
+
 	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XM_PI / 4);
 	default_rotation = Matrix::Identity;
+	//default_rotation = XMMatrixRotationZ(-XM_PI / 4);
+	//default_rotation = XMMatrixRotationY(-XM_PI / 4);
 	//default_rotation = XMMatrixRotationZ(-3*XM_PI / 4) * XMMatrixRotationY(-3 * XM_PI / 4);
 
 	Matrix i(XMFLOAT3X3(
@@ -11,7 +17,7 @@ void Simulation::Init() {
 		-0.25, 2.0f / 3.0f, -0.25,
 		-0.25, -0.25, 2.0f / 3.0f));
 
-	I = default_rotation * i * default_rotation.Transpose();
+	I = default_rotation.Transpose() * i * default_rotation;
 
 	G = { 0,0,-1 };
 
@@ -33,11 +39,12 @@ void Simulation::Update(float dt) {
 		return;
 
 	time += dt / 1000;
+	float timePerStep = delta_time / simulationSpeed;
 
-	while (time >= delta_time)
+	while (time >= timePerStep)
 	{
 		Update();
-		time -= delta_time;
+		time -= timePerStep;
 	}
 }
 
@@ -51,14 +58,12 @@ void Simulation::Update() {
 	Quaternion newQ = XMQuaternionNormalize(Q + (Quaternion)((k1 + k2 + k3 + k4) / 6));
 
 	XMMATRIX invI = I.Invert();
-	//XMVECTOR N = XMVector3Normalize(XMVector3TransformNormal(XMVector3Rotate(XMLoadFloat3(&g), XMQuaternionInverse(q)), XMMatrixTranspose(default_rotation)));
-	//XMVECTOR N = XMVector3Normalize(XMVector3Rotate(XMVector3TransformNormal(XMLoadFloat3(&g), default_rotation), q));
-	Vector3 g = XMVector3Normalize(XMVector3TransformNormal(G, default_rotation));
+	Vector3 g = XMVector3Normalize(XMVector3TransformNormal(G, default_rotation.Transpose()));
 	Vector3 r = XMVector3TransformCoord({ 0.5,0.5,0.5 }, default_rotation);
+	//Vector3 r = { 0.5,0.5,0.5 };
 
 	Matrix rot = XMMatrixRotationQuaternion(Q);
 	Vector3 gRot = XMVector3Rotate(g, XMQuaternionInverse(Q));
-	//XMVECTOR gRot = XMVector3TransformNormal(g, rot);
 	Vector3 N = XMVector3Cross(r, gRot);
 
 	Vector3 Iww = XMVector3Cross(XMVector3Transform(W, I), W);

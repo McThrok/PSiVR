@@ -14,4 +14,5 @@ public:
 private:
 	Timer timer;
 	Simulation simulation;
+	GuiData guiData;
 };

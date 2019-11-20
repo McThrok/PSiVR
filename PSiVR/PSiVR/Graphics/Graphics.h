@@ -15,6 +15,7 @@
 #include "ImGUI\\imgui.h"
 #include "ImGUI\\imgui_impl_win32.h"
 #include "ImGUI\\imgui_impl_dx11.h"
+#include "..\\GuiData.h"
 
 using namespace std;
 
@@ -25,7 +26,8 @@ public:
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
 	Camera camera;
-	Simulation * simulation;
+	Simulation* simulation;
+	GuiData * guiData;
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
