@@ -3,15 +3,15 @@
 void Simulation::Init() {
 
 	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XM_PI / 4);
-	default_rotation = XMMatrixIdentity();
+	default_rotation = Matrix::Identity;
 	//default_rotation = XMMatrixRotationZ(-3*XM_PI / 4) * XMMatrixRotationY(-3 * XM_PI / 4);
 
-	XMFLOAT3X3 i = XMFLOAT3X3(
+	Matrix i(XMFLOAT3X3(
 		2.0f / 3.0f, -0.25, -0.25,
 		-0.25, 2.0f / 3.0f, -0.25,
-		-0.25, -0.25, 2.0f / 3.0f);
+		-0.25, -0.25, 2.0f / 3.0f));
 
-	I = default_rotation * XMLoadFloat3x3(&i) * XMMatrixTranspose(default_rotation);
+	I = default_rotation * i * default_rotation.Transpose();
 
 	G = { 0,0,-1 };
 
@@ -19,7 +19,7 @@ void Simulation::Init() {
 }
 
 void Simulation::Reset() {
-	XMStoreFloat4(&Q, XMQuaternionIdentity());
+	Q = Quaternion::Identity;
 	W = { 0,0,0 };
 
 	time = 0;
@@ -42,52 +42,44 @@ void Simulation::Update(float dt) {
 }
 
 void Simulation::Update() {
-	XMVECTOR q = XMLoadFloat4(&Q);
-	XMVECTOR w = XMLoadFloat3(&W);
-	XMVECTOR w0 = { W.x,W.y,W.z,0.0f };
+	Quaternion w0 = { W.x,W.y,W.z,0.0f };
+	Quaternion k1 = delta_time * 0.5f * XMQuaternionMultiply((Q), w0);
+	Quaternion k2 = delta_time * 0.5f * XMQuaternionMultiply((Q + (Quaternion)(k1 / 2)), w0);
+	Quaternion k3 = delta_time * 0.5f * XMQuaternionMultiply((Q + (Quaternion)(k2 / 2)), w0);
+	Quaternion k4 = delta_time * 0.5f * XMQuaternionMultiply((Q + k3), w0);
 
-	//if (W.y > 1.178)
-	//	paused = true;
+	Quaternion newQ = XMQuaternionNormalize(Q + (Quaternion)((k1 + k2 + k3 + k4) / 6));
 
-	XMVECTOR k1 = delta_time * 0.5f * XMQuaternionMultiply((q), w0);
-	XMVECTOR k2 = delta_time * 0.5f * XMQuaternionMultiply((q + k1 / 2), w0);
-	XMVECTOR k3 = delta_time * 0.5f * XMQuaternionMultiply((q + k2 / 2), w0);
-	XMVECTOR k4 = delta_time * 0.5f * XMQuaternionMultiply((q + k3), w0);
-
-	XMVECTOR newQ = XMQuaternionNormalize(XMLoadFloat4(&Q) + (k1 + k2 + k3 + k4) / 6);
-
-
-	XMMATRIX invI = XMMatrixInverse(nullptr, I);
+	XMMATRIX invI = I.Invert();
 	//XMVECTOR N = XMVector3Normalize(XMVector3TransformNormal(XMVector3Rotate(XMLoadFloat3(&g), XMQuaternionInverse(q)), XMMatrixTranspose(default_rotation)));
 	//XMVECTOR N = XMVector3Normalize(XMVector3Rotate(XMVector3TransformNormal(XMLoadFloat3(&g), default_rotation), q));
-	XMVECTOR g = XMVector3Normalize(XMVector3TransformNormal(XMLoadFloat3(&G), default_rotation));
-	XMVECTOR r = XMVector3TransformCoord({ 0.5,0.5,0.5 }, default_rotation);
+	Vector3 g = XMVector3Normalize(XMVector3TransformNormal(G, default_rotation));
+	Vector3 r = XMVector3TransformCoord({ 0.5,0.5,0.5 }, default_rotation);
 
-	XMMATRIX rot = XMMatrixRotationQuaternion(XMLoadFloat4(&Q));
-	XMVECTOR gRot = XMVector3Rotate(g, XMQuaternionInverse(q));
+	Matrix rot = XMMatrixRotationQuaternion(Q);
+	Vector3 gRot = XMVector3Rotate(g, XMQuaternionInverse(Q));
 	//XMVECTOR gRot = XMVector3TransformNormal(g, rot);
-	XMVECTOR N = XMVector3Cross(r, gRot);
+	Vector3 N = XMVector3Cross(r, gRot);
 
-	XMVECTOR Iww = XMVector3Cross(XMVector3Transform(w, I), w);
+	Vector3 Iww = XMVector3Cross(XMVector3Transform(W, I), W);
 	k1 = delta_time * XMVector3Transform(N + Iww, invI);
 
-	Iww = XMVector3Cross(XMVector3Transform(w + k1 / 2, I), w + k1 / 2);
+	Iww = XMVector3Cross(XMVector3Transform(W + (Vector3)(k1 / 2), I), W + (Vector3)(k1 / 2));
 	k2 = delta_time * XMVector3Transform(N + Iww, invI);
 
-	Iww = XMVector3Cross(XMVector3Transform(w + k2 / 2, I), w + k2 / 2);
+	Iww = XMVector3Cross(XMVector3Transform(W + (Vector3)(k2 / 2), I), W + (Vector3)(k2 / 2));
 	k3 = delta_time * XMVector3Transform(N + Iww, invI);
 
-	Iww = XMVector3Cross(XMVector3Transform(w + k3, I), w + k3);
+	Iww = XMVector3Cross(XMVector3Transform(W + k3, I), W + k3);
 	k4 = delta_time * XMVector3Transform(N + Iww, invI);
 
-	XMVECTOR newW = XMLoadFloat3(&W) + (k1 + k2 + k3 + k4) / 6;
+	Vector3 newW = W + (Vector3)((k1 + k2 + k3 + k4) / 6);
 
-
-	XMStoreFloat4(&Q, newQ);
-	XMStoreFloat3(&W, newW);
+	Q = newQ;
+	W = newW;
 }
 
-XMMATRIX Simulation::GetWorldMatrix()
+Matrix Simulation::GetWorldMatrix()
 {
-	return default_rotation * XMMatrixRotationQuaternion(XMLoadFloat4(&Q));
+	return default_rotation * XMMatrixRotationQuaternion(Q);
 }
