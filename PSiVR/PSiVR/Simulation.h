@@ -18,6 +18,7 @@ public:
 	bool paused;
 	bool gravityUp;
 
+	float cubeSize;
 	float simulationSpeed;
 	float density;
 	Vector3 startVelocity;
@@ -38,5 +39,6 @@ public:
 	void Update();
 
 	Matrix GetWorldMatrix();
+	void UpdateTensor();
 };
 

@@ -7,32 +7,13 @@ void Simulation::Init() {
 	startVelocity = Vector3::Zero;
 	paused = false;
 
-	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XM_PI / 4);
-	default_rotation = Matrix::Identity;
-	//default_rotation = XMMatrixRotationZ(-XM_PI / 4);
-	//default_rotation = XMMatrixRotationY(-XM_PI / 4);
-	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XM_PI / 4);
-
-
-	Matrix i(XMFLOAT3X3(
-		2.0f / 3.0f, -0.25, -0.25,
-		-0.25, 2.0f / 3.0f, -0.25,
-		-0.25, -0.25, 2.0f / 3.0f));
-
-	I = i;
-
-	//I = default_rotation.Transpose() * i * default_rotation;
-	//I = default_rotation * i * default_rotation.Transpose();
+	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XMScalarACos(sqrtf(3) / 3));
+	
 
 	G = { 0,0,-1 };
 
 	Reset();
-
-
-	invI = I.Invert();
-	g = XMVector3Normalize(XMVector3TransformNormal(G, default_rotation.Transpose()));
-	//r = XMVector3TransformCoord({ 0.5,0.5,0.5 }, default_rotation);
-	r = { 0.5,0.5,0.5 };
+	UpdateTensor();
 }
 
 void Simulation::Reset() {
@@ -58,6 +39,19 @@ void Simulation::Update(float dt) {
 	}
 }
 
+void Simulation::UpdateTensor() 
+{
+	I = XMFLOAT3X3(
+		2.0f / 3.0f, -0.25, -0.25,
+		-0.25, 2.0f / 3.0f, -0.25,
+		-0.25, -0.25, 2.0f / 3.0f);
+
+	invI = I.Invert();
+	g = XMVector3Normalize(XMVector3TransformNormal(G, default_rotation.Transpose()));
+	r =  { 0.5,0.5,0.5 };
+
+}
+
 void Simulation::Update() {
 	Quaternion w0 = { W.x, W.y,W.z, 0.0f };
 	Quaternion k1 = delta_time * 0.5f * XMQuaternionMultiply((Q), w0);
@@ -67,9 +61,7 @@ void Simulation::Update() {
 
 	Quaternion newQ = XMQuaternionNormalize(Q + (Quaternion)((k1 + 2 * k2 + 2 * k3 + k4) / 6));
 
-	//Vector3 r = { 0.5,0.5,0.5 };
-
-	Matrix rot = XMMatrixRotationQuaternion(Q);
+	Vector3 r = { 0.5,0.5,0.5 };
 	Vector3 N = XMVector3Cross(r, XMVector3Rotate(g, XMQuaternionInverse(Q)));
 
 	Vector3 Iww = XMVector3Cross(XMVector3Transform(W, I), W);

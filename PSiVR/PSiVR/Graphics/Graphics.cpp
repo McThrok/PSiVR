@@ -101,8 +101,9 @@ void Graphics::RenderMainPanel() {
 	ImGui::Checkbox("show probes", &guiData->showProbes);
 	ImGui::Checkbox("show diagonal", &guiData->showDiagonal);
 
+	ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10);
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
-	ImGui::SliderFloat3("angular velocity", &simulation->startVelocity.x,0,5);
+	ImGui::SliderFloat3("angular velocity", &simulation->startVelocity.x, 0, 5);
 
 	ImGui::End();
 }
