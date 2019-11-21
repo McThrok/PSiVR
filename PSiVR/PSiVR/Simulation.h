@@ -12,25 +12,25 @@ using namespace DirectX::SimpleMath;
 class Simulation
 {
 public:
-	Matrix initial_rotation;
+	Matrix initialRotation;
 	float delta_time;
 	float time;
 	bool paused;
 	bool gravityUp;
 
+	int initialAngle;
 	float cubeSize;
 	float simulationSpeed;
 	float density;
-	Vector3 startVelocity;
+	Vector3 initialVelocity;
 
-	Matrix invI;
-	Vector3 g;
-	Vector3 r;
+	Matrix InvI;
+	Vector3 G;
+	Vector3 R;
 
 	Quaternion Q;
 	Vector3 W;
 	Matrix I;
-	Vector3 G;
 
 	vector<Vector3> probes;
 	int probesCount;

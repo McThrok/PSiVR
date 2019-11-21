@@ -101,25 +101,26 @@ void Graphics::RenderMainPanel() {
 	ImGui::Checkbox("show probes", &guiData->showProbes);
 	ImGui::Checkbox("show diagonal", &guiData->showDiagonal);
 
-	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10))
-		simulation->UpdateTensor();
+	bool update = false;
+	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10)) update = true;
+	if (ImGui::SliderFloat("density", &simulation->density, 0.1, 10)) update = true;
+	if (ImGui::SliderInt("initial angle", &simulation->initialAngle, -180, 180))update = true;
+	if (ImGui::SliderFloat3("initial angular velocity", &simulation->initialVelocity.x, 0, 5))update = true;
 
-	if (ImGui::SliderFloat("density", &simulation->density, 0.1, 10))
-		simulation->UpdateTensor();
+	if (update) simulation->Reset();
 
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
-	ImGui::SliderFloat3("angular velocity", &simulation->startVelocity.x, 0, 5);
-	ImGui::SliderInt("probes count", &simulation->probesCount, 50, 500);
+		ImGui::SliderInt("probes count", &simulation->probesCount, 50, 500);
 
-	ImGui::End();
+		ImGui::End();
 }
 
 void Graphics::RenderVisualisation()
 {
 	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
-	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	this->deviceContext->RSSetState(this->rasterizerState.Get());
-	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+		this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		this->deviceContext->RSSetState(this->rasterizerState.Get());
+		this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
