@@ -113,7 +113,7 @@ void Graphics::RenderMainPanel() {
 
 	ImGui::Checkbox("gravity", &simulation->gravityOn);
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
-	ImGui::SliderInt("probes count", &simulation->probesCount, 50, 500);
+	ImGui::SliderInt("probes count", &simulation->maxProbes, 50, 500);
 
 	ImGui::End();
 }
@@ -170,7 +170,25 @@ void Graphics::RenderVisualisation()
 		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
 	}
 
+	if (guiData->showProbes)
+	{
+		this->deviceContext->PSSetShader(diagonalPixelshader.GetShader(), NULL, 0);
 
+		cbColoredObject.data.worldMatrix = Matrix::Identity;
+		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+		cbColoredObject.data.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		if (!cbColoredObject.ApplyChanges()) return;
+		this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+		D3D11_MAPPED_SUBRESOURCE resource;
+		this->deviceContext->Map(vbProbes.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		memcpy(resource.pData, simulation->probes.data(), simulation->probes.size() * sizeof(VertexPN));
+		this->deviceContext->Unmap(vbProbes.Get(), 0);
+
+		this->deviceContext->IASetVertexBuffers(0, 1, vbProbes.GetAddressOf(), vbProbes.StridePtr(), &offset);
+		this->deviceContext->Draw(simulation->probes.size(), 0);
+	}
 }
 
 
@@ -335,6 +353,9 @@ bool Graphics::InitializeShaders()
 	if (!pixelshader.Initialize(this->device, L"my_ps.cso"))
 		return false;
 
+	if (!diagonalPixelshader.Initialize(this->device, L"diagonal_ps.cso"))
+		return false;
+
 	return true;
 }
 
@@ -446,6 +467,18 @@ bool Graphics::InitializeScene()
 	{
 		ErrorLogger::Log(hr, "Failed to create indices buffer.");
 		return hr;
+	}
+
+
+	VertexPN dummy_verts[1000];
+	for (int i = 0; i < 1000; i++)
+		dummy_verts[i] = VertexPN(0, 0, 0, 0, 0, 0);
+
+	hr = this->vbProbes.Initialize(this->device.Get(), dummy_verts, ARRAYSIZE(dummy_verts), true);
+	if (FAILED(hr))
+	{
+		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
+		return false;
 	}
 
 	//Initialize Constant Buffer(s)

@@ -9,9 +9,10 @@ void Simulation::Init()
 	initialVelocity = Vector3::Zero;
 	paused = false;
 	gravityOn = true;
-	probesCount = 100;
+	maxProbes = 100;
 	initialAngle = 0;
 	delta_time = 0.001;
+	probesCycleCount = 10;
 
 	Reset();
 }
@@ -22,6 +23,7 @@ void Simulation::Reset()
 	Q = Quaternion::Identity;
 	W = XMVector3TransformNormal(initialVelocity, initialRotation.Transpose());
 	time = 0;
+	probesCounter = 0;
 }
 
 void Simulation::UpdateTensor()
@@ -90,9 +92,23 @@ void Simulation::Update()
 	Q = newQ;
 	W = newW;
 
-	probes.push_back(XMVector3TransformNormal(R, GetWorldMatrix()));
-	if (probes.size() > probesCount)
-		probes.erase(probes.begin(), probes.begin() + probes.size() - probesCount);
+	UpdateProbes();
+}
+
+void Simulation::UpdateProbes()
+{
+	while (probesCounter >= probesCycleCount)
+		probesCounter -= probesCycleCount;
+
+	if (probesCounter == 0)
+	{
+		Vector3 v = XMVector3TransformNormal(2 * R, GetWorldMatrix());
+		probes.push_back(VertexPN(v, { 0,0,0 }));
+		if (probes.size() > maxProbes)
+			probes.erase(probes.begin(), probes.begin() + probes.size() - maxProbes);
+	}
+
+	probesCounter++;
 }
 
 Matrix Simulation::GetWorldMatrix()

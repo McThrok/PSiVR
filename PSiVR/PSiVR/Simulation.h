@@ -5,6 +5,8 @@
 #include <DirectXMath.h>
 #include <SimpleMath.h>
 
+#include "Graphics/Vertex.h"
+
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -32,8 +34,10 @@ public:
 	Vector3 W;
 	Matrix I;
 
-	vector<Vector3> probes;
-	int probesCount;
+	vector<VertexPN> probes;
+	int maxProbes;
+	int probesCycleCount;
+	int probesCounter;
 
 
 	void Init();
@@ -43,5 +47,6 @@ public:
 
 	Matrix GetWorldMatrix();
 	void UpdateTensor();
+	void UpdateProbes();
 };
 

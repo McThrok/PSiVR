@@ -37,12 +37,12 @@ public:
 		return *this->stride.get();
 	}
 
-	const UINT * StridePtr() const
+	const UINT* StridePtr() const
 	{
 		return this->stride.get();
 	}
 
-	HRESULT Initialize(ID3D11Device *device, T * data, UINT numVertices)
+	HRESULT Initialize(ID3D11Device* device, T* data, UINT numVertices, bool dynamic = false)
 	{
 		this->bufferSize = numVertices;
 		this->stride = std::make_unique<UINT>(sizeof(T));
@@ -50,10 +50,10 @@ public:
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
 
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.Usage = dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_DEFAULT;
 		vertexBufferDesc.ByteWidth = sizeof(T) * numVertices;
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
+		vertexBufferDesc.CPUAccessFlags = dynamic ? D3D11_CPU_ACCESS_WRITE : 0;
 		vertexBufferDesc.MiscFlags = 0;
 
 		D3D11_SUBRESOURCE_DATA vertexBufferData;

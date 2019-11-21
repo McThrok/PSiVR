@@ -49,6 +49,7 @@ private:
 
 	VertexShader vertexshader;
 	PixelShader pixelshader;
+	PixelShader diagonalPixelshader;
 
 	ConstantBuffer<ColoredObjectBuffer> cbColoredObject;
 	ConstantBuffer<LightBuffer> cbLight;
