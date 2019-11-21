@@ -72,7 +72,7 @@ void Graphics::RendeGui() {
 }
 
 void Graphics::RenderMainPanel() {
-	ImGui::SetNextWindowSize(ImVec2(300, 950), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(400, 950), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(10, 30), ImGuiCond_Once);
 	if (!ImGui::Begin("Main Panel"))
 	{
@@ -101,9 +101,15 @@ void Graphics::RenderMainPanel() {
 	ImGui::Checkbox("show probes", &guiData->showProbes);
 	ImGui::Checkbox("show diagonal", &guiData->showDiagonal);
 
-	ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10);
+	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10))
+		simulation->UpdateTensor();
+
+	if (ImGui::SliderFloat("density", &simulation->density, 0.1, 10))
+		simulation->UpdateTensor();
+
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
 	ImGui::SliderFloat3("angular velocity", &simulation->startVelocity.x, 0, 5);
+	ImGui::SliderInt("probes count", &simulation->probesCount, 50, 500);
 
 	ImGui::End();
 }

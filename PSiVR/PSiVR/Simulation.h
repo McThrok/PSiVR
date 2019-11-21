@@ -12,7 +12,7 @@ using namespace DirectX::SimpleMath;
 class Simulation
 {
 public:
-	Matrix default_rotation;
+	Matrix initial_rotation;
 	float delta_time;
 	float time;
 	bool paused;
@@ -31,6 +31,9 @@ public:
 	Vector3 W;
 	Matrix I;
 	Vector3 G;
+
+	vector<Vector3> probes;
+	int probesCount;
 
 
 	void Init();

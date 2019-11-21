@@ -4,13 +4,13 @@ void Simulation::Init() {
 
 	simulationSpeed = 1;
 	density = 1;
+	cubeSize = 1;
 	startVelocity = Vector3::Zero;
 	paused = false;
-
-	default_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XMScalarACos(sqrtf(3) / 3));
-	
-
+	probesCount = 100;
 	G = { 0,0,-1 };
+
+	initial_rotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XMScalarACos(sqrtf(3) / 3));
 
 	Reset();
 	UpdateTensor();
@@ -39,17 +39,19 @@ void Simulation::Update(float dt) {
 	}
 }
 
-void Simulation::UpdateTensor() 
+void Simulation::UpdateTensor()
 {
 	I = XMFLOAT3X3(
 		2.0f / 3.0f, -0.25, -0.25,
 		-0.25, 2.0f / 3.0f, -0.25,
 		-0.25, -0.25, 2.0f / 3.0f);
 
-	invI = I.Invert();
-	g = XMVector3Normalize(XMVector3TransformNormal(G, default_rotation.Transpose()));
-	r =  { 0.5,0.5,0.5 };
+	float m = cubeSize * cubeSize * cubeSize * density;
+	I *= m;
 
+	invI = I.Invert();
+	g = XMVector3Normalize(XMVector3TransformNormal(G, initial_rotation.Transpose()));
+	r = cubeSize * Vector3(0.5, 0.5, 0.5);
 }
 
 void Simulation::Update() {
@@ -61,7 +63,7 @@ void Simulation::Update() {
 
 	Quaternion newQ = XMQuaternionNormalize(Q + (Quaternion)((k1 + 2 * k2 + 2 * k3 + k4) / 6));
 
-	Vector3 r = { 0.5,0.5,0.5 };
+
 	Vector3 N = XMVector3Cross(r, XMVector3Rotate(g, XMQuaternionInverse(Q)));
 
 	Vector3 Iww = XMVector3Cross(XMVector3Transform(W, I), W);
@@ -80,9 +82,13 @@ void Simulation::Update() {
 
 	Q = newQ;
 	W = newW;
+
+	probes.push_back(XMVector3TransformNormal(r, GetWorldMatrix()));
+	if (probes.size() > probesCount)
+		probes.erase(probes.begin(), probes.begin() + probes.size() - probesCount);
 }
 
 Matrix Simulation::GetWorldMatrix()
 {
-	return (Matrix)XMMatrixRotationQuaternion(Q) * default_rotation;
+	return Matrix::CreateScale(cubeSize) * (Matrix)XMMatrixRotationQuaternion(Q) * initial_rotation;
 }
