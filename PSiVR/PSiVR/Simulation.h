@@ -22,6 +22,10 @@ public:
 	float density;
 	Vector3 startVelocity;
 
+	Matrix invI;
+	Vector3 g;
+	Vector3 r;
+
 	Quaternion Q;
 	Vector3 W;
 	Matrix I;
