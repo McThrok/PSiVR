@@ -4,5 +4,6 @@ public:
 	bool showCube = true;
 	bool showProbes = true;
 	bool showGravity = true;
-	bool showDiagonal = true;
+	bool showDiagonal = false;
+	bool showMassCenter = false;
 };

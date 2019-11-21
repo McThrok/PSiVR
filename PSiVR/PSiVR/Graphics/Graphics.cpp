@@ -100,6 +100,7 @@ void Graphics::RenderMainPanel() {
 	ImGui::Checkbox("show gravity", &guiData->showGravity);
 	ImGui::Checkbox("show probes", &guiData->showProbes);
 	ImGui::Checkbox("show diagonal", &guiData->showDiagonal);
+	ImGui::Checkbox("center of mass", &guiData->showMassCenter);
 
 	ImGui::Separator();
 	bool update = false;
@@ -143,6 +144,19 @@ void Graphics::RenderVisualisation()
 		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
 	}
 
+	if (guiData->showMassCenter) {
+		cbColoredObject.data.worldMatrix = Matrix::CreateTranslation(-0.5, -0.5, -0.5) * Matrix::CreateScale(0.1f, 0.1f, 0.1f)
+			* Matrix::CreateTranslation(0.5f, 0.5f, 0.5f) * simulation->GetWorldMatrix();
+		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+		cbColoredObject.data.color = { 0.2f,0.8f,0.2f,1.0f };
+
+		if (!cbColoredObject.ApplyChanges()) return;
+		this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
+		this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
+		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
+
+	}
+
 	if (guiData->showDiagonal)
 	{
 		cbColoredObject.data.worldMatrix = Matrix::CreateTranslation(-0.5, -0.5, 0) * Matrix::CreateScale(0.03f, 0.03f, sqrtf(3))
@@ -156,15 +170,6 @@ void Graphics::RenderVisualisation()
 		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
 	}
 
-	//this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-	//cbVS.data.worldMatrix = XMMatrixTranslation(-0.5f, -0.5f, -0.5f) * XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	//cbVS.data.wvpMatrix = cbVS.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-
-	//if (!cbVS.ApplyChanges()) return;
-	//this->deviceContext->VSSetConstantBuffers(0, 1, this->cbVS.GetAddressOf());
-	//this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
-	//this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
-	//this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
 
 }
 
