@@ -50,11 +50,14 @@ private:
 	VertexShader vertexshader;
 	PixelShader pixelshader;
 
-	ConstantBuffer<CB_VS_vertexshader> cbVS;
+	ConstantBuffer<ColoredObjectBuffer> cbColoredObject;
+	ConstantBuffer<LightBuffer> cbLight;
+
+	int max_probes = 1000;
+	VertexBuffer<VertexPN> vbProbes;
 
 	VertexBuffer<VertexPN> vbCube;
 	IndexBuffer ibCube;
-
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;

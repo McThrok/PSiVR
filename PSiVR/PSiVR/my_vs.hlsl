@@ -2,6 +2,7 @@ cbuffer perObjectBuffer : register(b0)
 {
 	float4x4 wvpMatrix;
 	float4x4 worldMatrix;
+	float4 color;
 };
 
 struct VS_INPUT

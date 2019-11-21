@@ -101,49 +101,70 @@ void Graphics::RenderMainPanel() {
 	ImGui::Checkbox("show probes", &guiData->showProbes);
 	ImGui::Checkbox("show diagonal", &guiData->showDiagonal);
 
+	ImGui::Separator();
 	bool update = false;
 	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10)) update = true;
 	if (ImGui::SliderFloat("density", &simulation->density, 0.1, 10)) update = true;
 	if (ImGui::SliderInt("initial angle", &simulation->initialAngle, -180, 180))update = true;
 	if (ImGui::SliderFloat3("initial angular velocity", &simulation->initialVelocity.x, 0, 5))update = true;
-
 	if (update) simulation->Reset();
+	ImGui::Separator();
 
+	ImGui::Checkbox("gravity", &simulation->gravityOn);
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
-		ImGui::SliderInt("probes count", &simulation->probesCount, 50, 500);
+	ImGui::SliderInt("probes count", &simulation->probesCount, 50, 500);
 
-		ImGui::End();
+	ImGui::End();
 }
 
 void Graphics::RenderVisualisation()
 {
 	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
-		this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		this->deviceContext->RSSetState(this->rasterizerState.Get());
-		this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	this->deviceContext->RSSetState(this->rasterizerState.Get());
+	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
 
 	UINT offset = 0;
 
-	cbVS.data.worldMatrix = simulation->GetWorldMatrix();
-	cbVS.data.wvpMatrix = cbVS.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
+	this->deviceContext->PSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
 
-	if (!cbVS.ApplyChanges()) return;
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbVS.GetAddressOf());
-	this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
-	this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
-	this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
+	if (guiData->showCube)
+	{
+		cbColoredObject.data.worldMatrix = simulation->GetWorldMatrix();
+		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+		cbColoredObject.data.color = { 0.8f, 0.4f, 0.0f, 1.0f };
 
+		if (!cbColoredObject.ApplyChanges()) return;
+		this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
+		this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
+		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
+	}
 
-	cbVS.data.worldMatrix = XMMatrixTranslation(-0.5f, -0.5f, -0.5f) * XMMatrixScaling(0.2f, 0.2f, 0.2f);
-	cbVS.data.wvpMatrix = cbVS.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	if (guiData->showDiagonal)
+	{
+		cbColoredObject.data.worldMatrix = Matrix::CreateTranslation(-0.5, -0.5, 0) * Matrix::CreateScale(0.03f, 0.03f, sqrtf(3))
+			* XMMatrixRotationY(XMScalarACos(sqrtf(3) / 3)) * XMMatrixRotationZ(XM_PI / 4) * simulation->GetWorldMatrix();
+		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+		cbColoredObject.data.color = { 1.0f,0.2f,0.2f,1.0f };
 
-	if (!cbVS.ApplyChanges()) return;
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbVS.GetAddressOf());
-	this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
-	this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
-	this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
+		if (!cbColoredObject.ApplyChanges()) return;
+		this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
+		this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
+		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
+	}
+
+	//this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	//cbVS.data.worldMatrix = XMMatrixTranslation(-0.5f, -0.5f, -0.5f) * XMMatrixScaling(0.2f, 0.2f, 0.2f);
+	//cbVS.data.wvpMatrix = cbVS.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+
+	//if (!cbVS.ApplyChanges()) return;
+	//this->deviceContext->VSSetConstantBuffers(0, 1, this->cbVS.GetAddressOf());
+	//this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
+	//this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
+	//this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
 
 }
 
@@ -407,7 +428,6 @@ bool Graphics::InitializeScene()
 	for (int i = 0; i < 36; i++)
 		indices[i] = i;*/
 
-		//Load Vertex Data
 	HRESULT hr = this->vbCube.Initialize(this->device.Get(), v, ARRAYSIZE(v));
 	if (FAILED(hr))
 	{
@@ -424,7 +444,14 @@ bool Graphics::InitializeScene()
 	}
 
 	//Initialize Constant Buffer(s)
-	hr = this->cbVS.Initialize(this->device.Get(), this->deviceContext.Get());
+	hr = this->cbColoredObject.Initialize(this->device.Get(), this->deviceContext.Get());
+	if (FAILED(hr))
+	{
+		ErrorLogger::Log(hr, "Failed to initialize constant buffer.");
+		return false;
+	}
+
+	hr = this->cbLight.Initialize(this->device.Get(), this->deviceContext.Get());
 	if (FAILED(hr))
 	{
 		ErrorLogger::Log(hr, "Failed to initialize constant buffer.");

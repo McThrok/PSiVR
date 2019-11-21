@@ -16,7 +16,7 @@ public:
 	float delta_time;
 	float time;
 	bool paused;
-	bool gravityUp;
+	bool gravityOn;
 
 	int initialAngle;
 	float cubeSize;

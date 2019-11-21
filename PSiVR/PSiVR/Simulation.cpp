@@ -1,41 +1,27 @@
 #include "Simulation.h"
 
-void Simulation::Init() {
+void Simulation::Init()
+{
 
 	simulationSpeed = 1;
 	density = 1;
 	cubeSize = 1;
 	initialVelocity = Vector3::Zero;
 	paused = false;
+	gravityOn = true;
 	probesCount = 100;
 	initialAngle = 0;
+	delta_time = 0.001;
 
 	Reset();
 }
 
-void Simulation::Reset() {
+void Simulation::Reset()
+{
 	UpdateTensor();
 	Q = Quaternion::Identity;
 	W = XMVector3TransformNormal(initialVelocity, initialRotation.Transpose());
-
 	time = 0;
-	delta_time = 0.001;
-	gravityUp = false;
-
-}
-
-void Simulation::Update(float dt) {
-	if (paused)
-		return;
-
-	time += dt / 1000;
-	float timePerStep = delta_time / simulationSpeed;
-
-	while (time >= timePerStep)
-	{
-		Update();
-		time -= timePerStep;
-	}
 }
 
 void Simulation::UpdateTensor()
@@ -52,11 +38,28 @@ void Simulation::UpdateTensor()
 
 	initialRotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XMScalarACos(sqrtf(3) / 3));
 	initialRotation *= XMMatrixRotationY(XM_PI * initialAngle / 180);
-	G = XMVector3Normalize(XMVector3TransformNormal(Vector3(0,0,-1), initialRotation.Transpose()));
+	G = XMVector3Normalize(XMVector3TransformNormal(Vector3(0, 0, -1), initialRotation.Transpose()));
 	R = cubeSize * Vector3(0.5, 0.5, 0.5);
 }
 
-void Simulation::Update() {
+void Simulation::Update(float dt)
+{
+	if (paused)
+		return;
+
+	time += dt / 1000;
+	float timePerStep = delta_time / simulationSpeed;
+
+	while (time >= timePerStep)
+	{
+		Update();
+		time -= timePerStep;
+	}
+}
+
+
+void Simulation::Update()
+{
 	Quaternion w0 = { W.x, W.y,W.z, 0.0f };
 	Quaternion k1 = delta_time * 0.5f * XMQuaternionMultiply((Q), w0);
 	Quaternion k2 = delta_time * 0.5f * XMQuaternionMultiply((Q + k1 * 0.5f), w0);
@@ -66,7 +69,9 @@ void Simulation::Update() {
 	Quaternion newQ = XMQuaternionNormalize(Q + (Quaternion)((k1 + 2 * k2 + 2 * k3 + k4) / 6));
 
 
-	Vector3 N = XMVector3Cross(R, XMVector3Rotate(G, XMQuaternionInverse(Q)));
+	Vector3 N = Vector3(0, 0, 0);
+	if (gravityOn)
+		N = XMVector3Cross(R, XMVector3Rotate(G, XMQuaternionInverse(Q)));
 
 	Vector3 Iww = XMVector3Cross(XMVector3Transform(W, I), W);
 	k1 = delta_time * XMVector3Transform(N + Iww, InvI);
