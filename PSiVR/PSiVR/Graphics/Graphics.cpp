@@ -106,8 +106,8 @@ void Graphics::RenderMainPanel() {
 	bool update = false;
 	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10)) update = true;
 	if (ImGui::SliderFloat("density", &simulation->density, 0.1, 10)) update = true;
-	if (ImGui::SliderInt("initial angle", &simulation->initialAngle, -180, 180))update = true;
-	if (ImGui::SliderFloat3("initial angular velocity", &simulation->initialVelocity.x, 0, 5))update = true;
+	if (ImGui::SliderInt("initial angle", &simulation->initialAngle, -180, 180)) update = true;
+	if (ImGui::SliderFloat("initial angular velocity", &simulation->initialVelocity, 0, 5)) update = true;
 	if (update) simulation->Reset();
 	ImGui::Separator();
 
@@ -134,7 +134,7 @@ void Graphics::RenderVisualisation()
 
 	if (guiData->showCube)
 	{
-		cbColoredObject.data.worldMatrix = simulation->GetWorldMatrix();
+		cbColoredObject.data.worldMatrix = simulation->GetModelMatrix();
 		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 		cbColoredObject.data.color = { 0.8f, 0.4f, 0.0f, 1.0f };
 
@@ -146,7 +146,7 @@ void Graphics::RenderVisualisation()
 
 	if (guiData->showMassCenter) {
 		cbColoredObject.data.worldMatrix = Matrix::CreateTranslation(-0.5, -0.5, -0.5) * Matrix::CreateScale(0.1f, 0.1f, 0.1f)
-			* Matrix::CreateTranslation(0.5f, 0.5f, 0.5f) * simulation->GetWorldMatrix();
+			* Matrix::CreateTranslation(0.5f, 0.5f, 0.5f) * simulation->GetModelMatrix();
 		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 		cbColoredObject.data.color = { 0.2f,0.8f,0.2f,1.0f };
 
@@ -160,7 +160,7 @@ void Graphics::RenderVisualisation()
 	if (guiData->showDiagonal)
 	{
 		cbColoredObject.data.worldMatrix = Matrix::CreateTranslation(-0.5, -0.5, 0) * Matrix::CreateScale(0.03f, 0.03f, sqrtf(3))
-			* XMMatrixRotationY(XMScalarACos(sqrtf(3) / 3)) * XMMatrixRotationZ(XM_PI / 4) * simulation->GetWorldMatrix();
+			* XMMatrixRotationY(XMScalarACos(sqrtf(3) / 3)) * XMMatrixRotationZ(XM_PI / 4) * simulation->GetModelMatrix();
 		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 		cbColoredObject.data.color = { 1.0f,0.2f,0.2f,1.0f };
 

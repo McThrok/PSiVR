@@ -24,7 +24,7 @@ public:
 	float cubeSize;
 	float simulationSpeed;
 	float density;
-	Vector3 initialVelocity;
+	float initialVelocity;
 
 	Matrix InvI;
 	Vector3 G;
@@ -45,7 +45,7 @@ public:
 	void Update(float dt);
 	void Update();
 
-	Matrix GetWorldMatrix();
+	Matrix GetModelMatrix();
 	void UpdateTensor();
 	void UpdateProbes();
 };
