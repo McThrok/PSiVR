@@ -40,11 +40,13 @@ void Simulation::UpdateTensor()
 	float m = cubeSize * cubeSize * cubeSize * density;
 	I *= m;
 
-	InvI = I.Invert();
+	InvI = I.Transpose();
 
-	initialRotation = XMMatrixRotationZ(-XM_PI / 4) * XMMatrixRotationY(-XMScalarACos(sqrtf(3.0f) / 3.0f));
-	//initialRotation = Matrix::Identity;
-	initialRotation *= XMMatrixRotationY(XM_PI * initialAngle / 180.0f);
+
+	initialRotation = XMMatrixRotationZ(-XM_PIDIV4);
+	initialRotation *= XMMatrixRotationY(-0.955316618);//XMMatrixRotationY(-XMScalarACos(sqrtf(3.0f) / 3.0f));
+	initialRotation *= XMMatrixRotationY(XMConvertToRadians(initialAngle));
+
 	G = XMVector3Normalize(XMVector3TransformNormal(Vector3(0, 0, -1), initialRotation.Transpose()));
 	R = cubeSize * Vector3(0.5f, 0.5f, 0.5f);
 }
@@ -67,32 +69,41 @@ void Simulation::Update(float dt)
 
 void Simulation::Update()
 {
-	Quaternion w0 = Quaternion(W, 0);
-	Quaternion k1 = delta_time * 0.5f * XMQuaternionMultiply((Q), w0);
-	Quaternion k2 = delta_time * 0.5f * XMQuaternionMultiply((Q + k1 * 0.5f), w0);
-	Quaternion k3 = delta_time * 0.5f * XMQuaternionMultiply((Q + k2 * 0.5f), w0);
-	Quaternion k4 = delta_time * 0.5f * XMQuaternionMultiply((Q + k3), w0);
+	Quaternion newQ;
+	{
+		Quaternion w0 = Quaternion(W, 0);
+		Quaternion k1 = delta_time * 0.5f * XMQuaternionMultiply(w0, Q);
+		Quaternion k2 = delta_time * 0.5f * XMQuaternionMultiply(w0, (Q + k1 * 0.5f));
+		Quaternion k3 = delta_time * 0.5f * XMQuaternionMultiply(w0, (Q + k2 * 0.5f));
+		Quaternion k4 = delta_time * 0.5f * XMQuaternionMultiply(w0, (Q + k3));
 
-	Quaternion newQ = XMQuaternionNormalize(Q + (Quaternion)((k1 + 2.0f * k2 + 2.0f * k3 + k4) / 6.0f));
+		newQ = XMQuaternionNormalize(Q + (Quaternion)((k1 + 2.0f * k2 + 2.0f * k3 + k4) / 6.0f));
+	}
 
+	Vector3 newW;
+	{
+		
+		Vector3 N = Vector3(0, 0, 0);
+		if (gravityOn)
+			N = XMVector3Cross(R, XMVector3Rotate(G, XMQuaternionInverse(Q)));
+		
+		if ((abs(N.x) + abs(N.y) + abs(N.z)) < 1.0e-07)
+			N = Vector3(0, 0, 0);
 
-	Vector3 N = Vector3(0, 0, 0);
-	if (gravityOn)
-		N = XMVector3Cross(R, XMVector3Rotate(G, XMQuaternionInverse(Q)));
+		Vector3 Iww = XMVector3Cross(XMVector3TransformNormal(W, I), W);
+		Vector3 k1 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
 
-	Vector3 Iww = XMVector3Cross(XMVector3TransformNormal(W, I), W);
-	k1 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
+		Iww = XMVector3Cross(XMVector3TransformNormal(W + k1 * 0.5f, I), W + k1 * 0.5f);
+		Vector3 k2 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
 
-	Iww = XMVector3Cross(XMVector3TransformNormal(W + k1 * 0.5f, I), W + k1 * 0.5f);
-	k2 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
+		Iww = XMVector3Cross(XMVector3TransformNormal(W + k2 * 0.5f, I), W + k2 * 0.5f);
+		Vector3 k3 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
 
-	Iww = XMVector3Cross(XMVector3TransformNormal(W + k2 * 0.5f, I), W + k2 * 0.5f);
-	k3 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
+		Iww = XMVector3Cross(XMVector3TransformNormal(W + k3, I), W + k3);
+		Vector3 k4 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
 
-	Iww = XMVector3Cross(XMVector3TransformNormal(W + k3, I), W + k3);
-	k4 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
-
-	Vector3 newW = W + (Vector3)((k1 + 2.0f * k2 + 2.0f * k3 + k4) / 6.0f);
+		newW = W + (Vector3)((k1 + 2.0f * k2 + 2.0f * k3 + k4) / 6.0f);
+	}
 
 	Q = newQ;
 	W = newW;
