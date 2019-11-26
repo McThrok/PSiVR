@@ -25,6 +25,7 @@ public:
 	float simulationSpeed;
 	float density;
 	float initialVelocity;
+	float m;
 
 	Matrix InvI;
 	Vector3 G;

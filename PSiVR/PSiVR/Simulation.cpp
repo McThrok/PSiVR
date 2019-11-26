@@ -37,17 +37,16 @@ void Simulation::UpdateTensor()
 		-0.25, 2.0f / 3.0f, -0.25,
 		-0.25, -0.25, 2.0f / 3.0f);
 
-	float m = cubeSize * cubeSize * cubeSize * density;
-	I *= m;
+	m = cubeSize * cubeSize * cubeSize * density;
+	I *= m * cubeSize * cubeSize;
 
 	InvI = I.Transpose();
-
 
 	initialRotation = XMMatrixRotationZ(-XM_PIDIV4);
 	initialRotation *= XMMatrixRotationY(-0.955316618);//XMMatrixRotationY(-XMScalarACos(sqrtf(3.0f) / 3.0f));
 	initialRotation *= XMMatrixRotationY(XMConvertToRadians(initialAngle));
 
-	G = XMVector3Normalize(XMVector3TransformNormal(Vector3(0, 0, -1), initialRotation.Transpose()));
+	G = XMVector3Normalize(XMVector3TransformNormal(Vector3(0, 0, -m), initialRotation.Transpose()));
 	R = cubeSize * Vector3(0.5f, 0.5f, 0.5f);
 }
 
@@ -116,7 +115,7 @@ void Simulation::UpdateProbes()
 
 	if (probesCounter == 0)
 	{
-		Vector3 v = XMVector3TransformNormal(2 * R, GetModelMatrix());
+		Vector3 v = XMVector3TransformNormal(Vector3(1,1,1), GetModelMatrix());
 		probes.push_back(VertexPN(v, { 0,0,0 }));
 		if (probes.size() > maxProbes)
 			probes.erase(probes.begin(), probes.begin() + probes.size() - maxProbes);

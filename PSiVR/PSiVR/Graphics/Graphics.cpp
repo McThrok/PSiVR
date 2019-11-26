@@ -94,7 +94,7 @@ void Graphics::RenderMainPanel() {
 		simulation->Reset();
 	}
 
-	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.01f, 0.2f);
+	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.0005f, 0.05f,"%.4f");
 
 	ImGui::Checkbox("show cube", &guiData->showCube);
 	ImGui::Checkbox("show gravity", &guiData->showGravity);
@@ -104,7 +104,7 @@ void Graphics::RenderMainPanel() {
 
 	ImGui::Separator();
 	bool update = false;
-	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.1, 10)) update = true;
+	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.2, 2)) update = true;
 	if (ImGui::SliderFloat("density", &simulation->density, 0.1, 10)) update = true;
 	if (ImGui::SliderInt("initial angle", &simulation->initialAngle, -180, 180)) update = true;
 	if (ImGui::SliderFloat("initial angular velocity", &simulation->initialVelocity, 0, 5)) update = true;
