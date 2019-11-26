@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include "vec3.h"
+
 class mat3
 {
 public:
@@ -12,6 +14,18 @@ public:
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++)
 				m[i][j] = 0;
+	}
+	mat3(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33)
+	{
+		m[0][0] = m11;
+		m[0][1] = m12;
+		m[0][2] = m13;
+		m[1][0] = m21;
+		m[1][1] = m22;
+		m[1][2] = m23;
+		m[2][0] = m31;
+		m[2][1] = m32;
+		m[2][2] = m33;
 	}
 	mat3(const mat3& mat)
 	{
@@ -74,12 +88,15 @@ public:
 	{
 		float tmp = m[0][1];
 		m[0][1] = m[1][0];
+		m[1][0] = tmp;
 
 		tmp = m[0][2];
 		m[0][2] = m[2][0];
+		m[2][0] = tmp;
 
 		tmp = m[1][2];
 		m[1][2] = m[2][1];
+		m[2][1] = tmp;
 	}
 
 	mat3 createScale(float x, float y, float z)
@@ -148,12 +165,9 @@ public:
 				m[i][j] -= mat.m[i][j];
 		return *this;
 	}
-	/*!*/mat3& operator*=(const mat3& mat)
+	mat3& operator*=(const mat3& mat)
 	{
-		for (int i = 0; i < 3; ++i)
-			for (int j = 0; j < 3; ++j)
-				for (int k = 0; k < 3; ++k)
-					m[i][j] += m[i][k] * mat.m[k][j];
+		*this = *this * mat;
 		return *this;
 	}
 	mat3& operator+=(float t)
@@ -189,9 +203,14 @@ public:
 	{
 		return mat3(*this) -= mat;
 	}
-	const mat3 operator*(const mat3& mat) const
+	/*!*/const mat3 operator*(const mat3& mat) const
 	{
-		return mat3(*this) *= mat;
+		mat3 result;
+		for (int i = 0; i < 3; ++i)
+			for (int j = 0; j < 3; ++j)
+				for (int k = 0; k < 3; ++k)
+					result.m[i][j] += m[i][k] * mat.m[k][j];
+		return result;
 	}
 	const mat3 operator+(float t) const
 	{
@@ -231,4 +250,7 @@ public:
 	}
 };
 
-
+const mat3 operator+(const float& t, const mat3& m);
+const mat3 operator-(const float& t, const mat3& m);
+const mat3 operator*(const float& t, const mat3& m);
+const mat3 operator/(const float& t, const mat3& m);

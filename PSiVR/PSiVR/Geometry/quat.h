@@ -19,7 +19,8 @@ public:
 	}
 	quat inv() const
 	{
-		return quat(-x, -y, -z, 1);
+		return quat(-x, -y, -z, w);
+
 	}
 	mat3 rotationMat()
 	{
@@ -44,8 +45,8 @@ public:
 
 	vec3 rotateVec(const vec3& v) const
 	{
-		quat vQuat = quat(v, 0);
-		quat result = ((*this) * vQuat) * inv();
+		quat ads = (*this) * quat(v, 0);
+		quat result = ((*this) * quat(v, 0)) * inv();
 		return vec3(result.x, result.y, result.z);
 	}
 
@@ -86,10 +87,26 @@ public:
 	}
 	quat& operator*=(const quat& q)
 	{
-		float newX = w * q.x + x * q.w + y * q.z - z * q.y;
-		float newY = w * q.y - x * q.z + y * q.w + z * q.x;
-		float newZ = w * q.z + x * q.y - y * q.x + z * q.w;
-		float newW = w * q.w - x * q.x - y * q.y - z * q.z;
+		//float newX = w * q.x + x * q.w + y * q.z - z * q.y;
+		//float newY = w * q.y - x * q.z + y * q.w + z * q.x;
+		//float newZ = w * q.z + x * q.y - y * q.x + z * q.w;
+		//float newW = w * q.w - x * q.x - y * q.y - z * q.z;
+
+		//newX = x * q.w + y * q.z - z * q.y + w * q.x;
+		//newY = -x * q.z + y * q.w + z * q.x + w * q.y;
+		//newZ = x * q.y - y * q.x + z * q.w + w * q.z;
+		//newW = -x * q.x - y * q.y - z * q.z + w * q.w;
+
+
+		float newX = (w * q.x) + (x * q.w) + (y * q.z) - (z * q.y);
+		float newY = (w * q.y) - (x * q.z) + (y * q.w) + (z * q.x);
+		float newZ = (w * q.z) + (x * q.y) - (y * q.x) + (z * q.w);
+		float newW = (w * q.w) - (x * q.x) - (y * q.y) - (z * q.z);
+
+		//float newW = w * q.w - x * q.x - y * q.y - z * q.z;
+		//float newX = w * q.x + x * q.w - y * q.z + z * q.y;
+		//float newY = w * q.y + x * q.z + y * q.w - z * q.x;
+		//float newZ = w * q.z - x * q.y + y * q.x + z * q.w;
 
 		x = newX;
 		y = newY;
@@ -176,11 +193,11 @@ public:
 	}
 	bool operator==(const quat& q) const
 	{
-		return (x == q.x) && (y == q.y) && (z == q.z) && (z == q.w);
+		return (x == q.x) && (y == q.y) && (z == q.z) && (w == q.w);
 	}
 	bool operator!=(const quat& q) const
 	{
-		return (x != q.x) || (y != q.y) || (z != q.z) || (z != q.w);
+		return (x != q.x) || (y != q.y) || (z != q.z) || (w != q.w);
 	}
 
 	float dot(const quat& q) const
@@ -191,17 +208,25 @@ public:
 	{
 		return q * (*this).dot(q) / q.length() / q.length() * 2 - *this;
 	}
-	void normalize() 
+	void normalize()
 	{
-		*this /= length();
+		float len = length();
+		if (len > 0)
+			*this /= len;
 	}
 	quat normalized() const
 	{
-		return quat(*this) /= length();
+		quat q(*this);
+		q.normalize();
+		return q;
 	}
 	float length() const
 	{
-		return sqrt(x * x + y * y + z * z + w * w);
+		return sqrtl(x * x + y * y + z * z + w * w);
 	}
 };
 
+const quat operator+(const float& t, const quat& q);
+const quat operator-(const float& t, const quat& q);
+const quat operator*(const float& t, const quat& q);
+const quat operator/(const float& t, const quat& q);

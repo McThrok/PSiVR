@@ -192,6 +192,7 @@ copy "$(OutDir)*.cso" "$(ProjectDir)"</Command>
     <ClCompile Include="WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common.h" />
     <ClInclude Include="Geometry\mat3.h" />
     <ClInclude Include="Geometry\quat.h" />
     <ClInclude Include="Geometry\vec3.h" />

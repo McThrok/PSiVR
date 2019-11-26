@@ -142,11 +142,19 @@ public:
 	}
 	void normalize()
 	{
-		*this /= length();
+		float len = length();
+		if (len > 0)
+			*this /= len;
 	}
 	vec3 normalized() const
 	{
-		return vec3(*this) /= length();
+		vec3 v(*this);
+		v.normalize();
+		return v;
 	}
 };
 
+const vec3 operator+(const float& t, const vec3& v);
+const vec3 operator-(const float& t, const vec3& v);
+const vec3 operator*(const float& t, const vec3& v);
+const vec3 operator/(const float& t, const vec3& v);
