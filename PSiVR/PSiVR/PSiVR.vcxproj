@@ -164,6 +164,9 @@ copy "$(OutDir)*.cso" "$(ProjectDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Geometry\mat3.cpp" />
+    <ClCompile Include="Geometry\quat.cpp" />
+    <ClCompile Include="Geometry\vec3.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\AdapterReader.cpp" />
     <ClCompile Include="Engine.cpp" />
@@ -189,6 +192,9 @@ copy "$(OutDir)*.cso" "$(ProjectDir)"</Command>
     <ClCompile Include="WindowContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Geometry\mat3.h" />
+    <ClInclude Include="Geometry\quat.h" />
+    <ClInclude Include="Geometry\vec3.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Graphics\ConstantBufferTypes.h" />

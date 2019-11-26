@@ -6,6 +6,7 @@
 #include <SimpleMath.h>
 
 #include "Graphics/Vertex.h"
+#include "Geometry/quat.h"
 
 using namespace std;
 using namespace DirectX;
@@ -15,6 +16,7 @@ class Simulation
 {
 public:
 	Matrix initialRotation;
+	mat3 initialRotationQwe;
 	float delta_time;
 	float time;
 	bool paused;
@@ -34,6 +36,14 @@ public:
 	Quaternion Q;
 	Vector3 W;
 	Matrix I;
+
+
+	mat3 InvIQwe;
+	vec3 GQwe;
+	vec3 RQwe;
+	quat QQwe;
+	vec3 WQwe;
+	mat3 IQwe;
 
 	vector<VertexPN> probes;
 	int maxProbes;
