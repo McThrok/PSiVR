@@ -37,8 +37,8 @@ void Simulation::UpdateTensor()
 		-0.25, 2.0f / 3.0f, -0.25,
 		-0.25, -0.25, 2.0f / 3.0f);
 
-	m = cubeSize * cubeSize * cubeSize * density;
-	I *= m * cubeSize * cubeSize;
+	m = density;
+	I *= m;
 
 	InvI = I.Transpose();
 
@@ -47,7 +47,7 @@ void Simulation::UpdateTensor()
 	initialRotation *= XMMatrixRotationY(XMConvertToRadians(initialAngle));
 
 	G = XMVector3Normalize(XMVector3TransformNormal(Vector3(0, 0, -m), initialRotation.Transpose()));
-	R = cubeSize * Vector3(0.5f, 0.5f, 0.5f);
+	R = Vector3(0.5f, 0.5f, 0.5f);
 }
 
 void Simulation::Update(float dt)
@@ -86,9 +86,6 @@ void Simulation::Update()
 		if (gravityOn)
 			N = XMVector3Cross(R, XMVector3Rotate(G, XMQuaternionInverse(Q)));
 		
-		if ((abs(N.x) + abs(N.y) + abs(N.z)) < 1.0e-07)
-			N = Vector3(0, 0, 0);
-
 		Vector3 Iww = XMVector3Cross(XMVector3TransformNormal(W, I), W);
 		Vector3 k1 = delta_time * XMVector3TransformNormal(N + Iww, InvI);
 
