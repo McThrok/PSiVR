@@ -15,7 +15,6 @@ using namespace DirectX::SimpleMath;
 class Simulation
 {
 public:
-	Matrix initialRotation;
 	mat3 initialRotationQwe;
 	float delta_time;
 	float time;
@@ -28,15 +27,6 @@ public:
 	float density;
 	float initialVelocity;
 	float m;
-
-	Matrix InvI;
-	Vector3 G;
-	Vector3 R;
-
-	Quaternion Q;
-	Vector3 W;
-	Matrix I;
-
 
 	mat3 InvIQwe;
 	vec3 GQwe;

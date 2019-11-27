@@ -78,7 +78,7 @@ public:
 		);
 	}
 
-	mat3 transposed()
+	mat3 transposed() const
 	{
 		mat3 mat(*this);
 		mat.transpose();
