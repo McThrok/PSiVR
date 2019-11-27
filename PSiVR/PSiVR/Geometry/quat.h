@@ -45,8 +45,7 @@ public:
 
 	vec3 rotateVec(const vec3& v) const
 	{
-		quat ads = (*this) * quat(v, 0);
-		quat result = ((*this) * quat(v, 0)) * inv();
+		quat result = (*this) * (quat(v, 0) * inv());
 		return vec3(result.x, result.y, result.z);
 	}
 

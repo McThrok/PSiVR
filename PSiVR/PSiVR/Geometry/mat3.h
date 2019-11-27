@@ -46,6 +46,7 @@ public:
 	}
 
 	mat3 inv() {
+		//errors
 		mat3 mat(*this);
 		int i, j;
 		long double determinant = 0;

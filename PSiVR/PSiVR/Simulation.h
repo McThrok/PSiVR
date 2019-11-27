@@ -20,6 +20,7 @@ public:
 	float time;
 	bool paused;
 	bool gravityOn;
+	bool gravityUp;
 
 	int initialAngle;
 	float cubeSize;
@@ -49,5 +50,6 @@ public:
 	Matrix GetModelMatrix();
 	void UpdateTensor();
 	void UpdateProbes();
+	vec3 GetN(quat q);
 };
 

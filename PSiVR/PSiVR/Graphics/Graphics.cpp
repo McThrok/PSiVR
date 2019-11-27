@@ -94,7 +94,7 @@ void Graphics::RenderMainPanel() {
 		simulation->Reset();
 	}
 
-	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.0005f, 0.05f,"%.4f");
+	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.0005f, 0.05f, "%.4f");
 
 	ImGui::Checkbox("show cube", &guiData->showCube);
 	ImGui::Checkbox("show gravity", &guiData->showGravity);
