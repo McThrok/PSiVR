@@ -19,11 +19,11 @@ void Simulation::Init()
 void Simulation::Reset()
 {
 	UpdateTensor();
-	QQwe = QQwe.identity();
+	Q = Q.identity();
 
-	WQwe = vec3(1, 1, 1);
-	WQwe.normalize();
-	WQwe *= initialVelocity;
+	W = vec3(1, 1, 1);
+	W.normalize();
+	W *= initialVelocity;
 
 	time = 0;
 	probesCounter = 0;
@@ -32,22 +32,23 @@ void Simulation::Reset()
 
 void Simulation::UpdateTensor()
 {
-	IQwe = mat3(
-		2.0f / 3.0f, -0.25, -0.25,
-		-0.25, 2.0f / 3.0f, -0.25,
-		-0.25, -0.25, 2.0f / 3.0f);
+	I = mat3(
+		2.0L / 3.0L, -0.25L, -0.25L,
+		-0.25L, 2.0L / 3.0L, -0.25L,
+		-0.25L, -0.25L, 2.0L / 3.0L);
 
 	m = density;
-	IQwe *= m;
+	I *= m;
+	InvI = I.transposed();
 
-	InvIQwe = IQwe.transposed();
+	long double pi = 3.14159265358979323846264338327950288419716939937510L;
 
-	initialRotationQwe = initialRotationQwe.createRotationY(initialAngle * XM_PI / 180);
-	initialRotationQwe *= initialRotationQwe.createRotationY(-0.955316618);
-	initialRotationQwe *= initialRotationQwe.createRotationZ(-XM_PIDIV4);
+	initialRotation = initialRotation.createRotationY(initialAngle * pi / 180.0L);
+	initialRotation *= initialRotation.createRotationY(-0.95531661812450927816385710251575775424341469501001L);//XMMatrixRotationY(-XMScalarACos(sqrtf(3.0L) / 3.0L));
+	initialRotation *= initialRotation.createRotationZ(-pi/4);
 
-	GQwe = initialRotationQwe.transposed().transform(vec3(0, 0, -m));
-	RQwe = vec3(0.5f, 0.5f, 0.5f);
+	G = initialRotation.transposed().transform(vec3(0, 0, -m));
+	R = vec3(0.5L, 0.5L, 0.5L);
 }
 
 void Simulation::Update(float dt)
@@ -68,41 +69,41 @@ void Simulation::Update(float dt)
 
 void Simulation::Update()
 {
-	quat newQQwe;
+	quat newQ;
 	{
-		quat w0Qwe = quat(WQwe, 0);
-		quat k1Qwe = delta_time * 0.5f * QQwe * w0Qwe;
-		quat k2Qwe = delta_time * 0.5f * (QQwe + k1Qwe * 0.5f) * w0Qwe;
-		quat k3Qwe = delta_time * 0.5f * (QQwe + k2Qwe * 0.5f) * w0Qwe;
-		quat k4Qwe = delta_time * 0.5f * (QQwe + k3Qwe) * w0Qwe;
+		quat w0 = quat(W, 0);
+		quat k1 = delta_time * 0.5L * Q * w0;
+		quat k2 = delta_time * 0.5L * (Q + k1 * 0.5L) * w0;
+		quat k3 = delta_time * 0.5L * (Q + k2 * 0.5L) * w0;
+		quat k4 = delta_time * 0.5L * (Q + k3) * w0;
 
-		newQQwe = QQwe + (k1Qwe + 2.0f * k2Qwe + 2.0f * k3Qwe + k4Qwe) / 6.0f;
-		newQQwe.normalize();
+		newQ = Q + (k1 + 2.0L * k2 + 2.0L * k3 + k4) / 6.0L;
+		newQ.normalize();
 	}
 
-	vec3 newWQwe;
+	vec3 newW;
 	{
-		vec3 NQwe = vec3(0, 0, 0);
+		vec3 N = vec3(0, 0, 0);
 		if (gravityOn)
-			NQwe = RQwe.cross(QQwe.inv().rotateVec(GQwe));
+			N = R.cross(Q.inv().rotateVec(G));
 
-		vec3 IwwQwe = IQwe.transform(WQwe).cross(WQwe);
-		vec3 k1Qwe = delta_time * InvIQwe.transform(NQwe + IwwQwe);
+		vec3 Iww = I.transform(W).cross(W);
+		vec3 k1 = delta_time * InvI.transform(N + Iww);
 
-		IwwQwe = IQwe.transform(WQwe + k1Qwe * 0.5f).cross(WQwe + k1Qwe * 0.5f);
-		vec3 k2Qwe = delta_time * InvIQwe.transform(NQwe + IwwQwe);
+		Iww = I.transform(W + k1 * 0.5L).cross(W + k1 * 0.5L);
+		vec3 k2 = delta_time * InvI.transform(N + Iww);
 
-		IwwQwe = IQwe.transform(WQwe + k2Qwe * 0.5f).cross(WQwe + k2Qwe * 0.5f);
-		vec3 k3Qwe = delta_time * InvIQwe.transform(NQwe + IwwQwe);
+		Iww = I.transform(W + k2 * 0.5L).cross(W + k2 * 0.5L);
+		vec3 k3 = delta_time * InvI.transform(N + Iww);
 
-		IwwQwe = IQwe.transform(WQwe + k3Qwe).cross(WQwe + k3Qwe);
-		vec3 k4Qwe = delta_time * InvIQwe.transform(NQwe + IwwQwe);
+		Iww = I.transform(W + k3).cross(W + k3);
+		vec3 k4 = delta_time * InvI.transform(N + Iww);
 
-		newWQwe = WQwe + (k1Qwe + 2.0f * k2Qwe + 2.0f * k3Qwe + k4Qwe) / 6.0f;
+		newW = W + (k1 + 2.0L * k2 + 2.0L * k3 + k4) / 6.0L;
 	}
 
-	QQwe = newQQwe;
-	WQwe = newWQwe;
+	Q = newQ;
+	W = newW;
 }
 
 void Simulation::UpdateProbes()
@@ -123,6 +124,6 @@ void Simulation::UpdateProbes()
 
 Matrix Simulation::GetModelMatrix()
 {
-	mat3 mat = (initialRotationQwe * (QQwe.rotationMat()) * (initialRotationQwe.createScale(cubeSize))).transposed();
+	mat3 mat = (initialRotation * (Q.rotationMat()) * (initialRotation.createScale(cubeSize))).transposed();
 	return Matrix(XMFLOAT3X3(mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[2][0], mat.m[2][1], mat.m[2][2]));
 }

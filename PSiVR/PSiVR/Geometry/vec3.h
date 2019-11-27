@@ -4,10 +4,10 @@
 class vec3
 {
 public:
-	float x, y, z;
+	long double x, y, z;
 
 	vec3() : vec3(0, 0, 0) {}
-	vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
+	vec3(long double _x, long double _y, long double _z) : x(_x), y(_y), z(_z) {}
 	vec3(const vec3& u)
 	{
 		x = u.x;
@@ -53,28 +53,28 @@ public:
 		z /= u.z;
 		return *this;
 	}
-	vec3& operator+=(float t)
+	vec3& operator+=(long double t)
 	{
 		x += t;
 		y += t;
 		z += t;
 		return *this;
 	}
-	vec3& operator-=(float t)
+	vec3& operator-=(long double t)
 	{
 		x -= t;
 		y -= t;
 		z -= t;
 		return *this;
 	}
-	vec3& operator*=(float t)
+	vec3& operator*=(long double t)
 	{
 		x *= t;
 		y *= t;
 		z *= t;
 		return *this;
 	}
-	vec3& operator/=(float t)
+	vec3& operator/=(long double t)
 	{
 		return *this *= (1 / t);
 	}
@@ -94,19 +94,19 @@ public:
 	{
 		return vec3(*this) /= u;
 	}
-	const vec3 operator+(float t) const
+	const vec3 operator+(long double t) const
 	{
 		return vec3(*this) += t;
 	}
-	const vec3 operator-(float t) const
+	const vec3 operator-(long double t) const
 	{
 		return vec3(*this) -= t;
 	}
-	const vec3 operator*(float t) const
+	const vec3 operator*(long double t) const
 	{
 		return vec3(*this) *= t;
 	}
-	const vec3 operator/(float t) const
+	const vec3 operator/(long double t) const
 	{
 		return vec3(*this) *= (1 / t);
 	}
@@ -124,7 +124,7 @@ public:
 		return (x != u.x) || (y != u.y) || (z != u.z);
 	}
 
-	float dot(const vec3& u) const
+	long double dot(const vec3& u) const
 	{
 		return x * u.x + y * u.y + z * u.z;
 	}
@@ -136,13 +136,13 @@ public:
 	{
 		return u * (*this).dot(u) / u.length() / u.length() * 2 - *this;
 	}
-	float length() const
+	long double length() const
 	{
-		return sqrt(x * x + y * y + z * z);
+		return sqrtl(x * x + y * y + z * z);
 	}
 	void normalize()
 	{
-		float len = length();
+		long double len = length();
 		if (len > 0)
 			*this /= len;
 	}
@@ -154,7 +154,7 @@ public:
 	}
 };
 
-const vec3 operator+(const float& t, const vec3& v);
-const vec3 operator-(const float& t, const vec3& v);
-const vec3 operator*(const float& t, const vec3& v);
-const vec3 operator/(const float& t, const vec3& v);
+const vec3 operator+(const long double& t, const vec3& v);
+const vec3 operator-(const long double& t, const vec3& v);
+const vec3 operator*(const long double& t, const vec3& v);
+const vec3 operator/(const long double& t, const vec3& v);

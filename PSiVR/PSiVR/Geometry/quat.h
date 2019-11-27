@@ -7,11 +7,11 @@
 class quat
 {
 public:
-	float x, y, z, w;
+	long double x, y, z, w;
 
 	quat() :x(0), y(0), z(0), w(0) {}
-	quat(float _x, float _y, float _z, float _w) :x(_x), y(_y), z(_z), w(_w) {}
-	quat(vec3 v, float _w) :x(v.x), y(v.y), z(v.z), w(_w) {}
+	quat(long double _x, long double _y, long double _z, long double _w) :x(_x), y(_y), z(_z), w(_w) {}
+	quat(vec3 v, long double _w) :x(v.x), y(v.y), z(v.z), w(_w) {}
 
 	quat identity() const
 	{
@@ -87,10 +87,10 @@ public:
 	}
 	quat& operator*=(const quat& q)
 	{
-		//float newX = w * q.x + x * q.w + y * q.z - z * q.y;
-		//float newY = w * q.y - x * q.z + y * q.w + z * q.x;
-		//float newZ = w * q.z + x * q.y - y * q.x + z * q.w;
-		//float newW = w * q.w - x * q.x - y * q.y - z * q.z;
+		//long double newX = w * q.x + x * q.w + y * q.z - z * q.y;
+		//long double newY = w * q.y - x * q.z + y * q.w + z * q.x;
+		//long double newZ = w * q.z + x * q.y - y * q.x + z * q.w;
+		//long double newW = w * q.w - x * q.x - y * q.y - z * q.z;
 
 		//newX = x * q.w + y * q.z - z * q.y + w * q.x;
 		//newY = -x * q.z + y * q.w + z * q.x + w * q.y;
@@ -98,15 +98,15 @@ public:
 		//newW = -x * q.x - y * q.y - z * q.z + w * q.w;
 
 
-		float newX = (w * q.x) + (x * q.w) + (y * q.z) - (z * q.y);
-		float newY = (w * q.y) - (x * q.z) + (y * q.w) + (z * q.x);
-		float newZ = (w * q.z) + (x * q.y) - (y * q.x) + (z * q.w);
-		float newW = (w * q.w) - (x * q.x) - (y * q.y) - (z * q.z);
+		long double newX = (w * q.x) + (x * q.w) + (y * q.z) - (z * q.y);
+		long double newY = (w * q.y) - (x * q.z) + (y * q.w) + (z * q.x);
+		long double newZ = (w * q.z) + (x * q.y) - (y * q.x) + (z * q.w);
+		long double newW = (w * q.w) - (x * q.x) - (y * q.y) - (z * q.z);
 
-		//float newW = w * q.w - x * q.x - y * q.y - z * q.z;
-		//float newX = w * q.x + x * q.w - y * q.z + z * q.y;
-		//float newY = w * q.y + x * q.z + y * q.w - z * q.x;
-		//float newZ = w * q.z - x * q.y + y * q.x + z * q.w;
+		//long double newW = w * q.w - x * q.x - y * q.y - z * q.z;
+		//long double newX = w * q.x + x * q.w - y * q.z + z * q.y;
+		//long double newY = w * q.y + x * q.z + y * q.w - z * q.x;
+		//long double newZ = w * q.z - x * q.y + y * q.x + z * q.w;
 
 		x = newX;
 		y = newY;
@@ -124,7 +124,7 @@ public:
 		return *this;
 	}
 
-	quat& operator+=(float t)
+	quat& operator+=(long double t)
 	{
 		x += t;
 		y += t;
@@ -132,7 +132,7 @@ public:
 		w += t;
 		return *this;
 	}
-	quat& operator-=(float t)
+	quat& operator-=(long double t)
 	{
 		x -= t;
 		y -= t;
@@ -140,7 +140,7 @@ public:
 		w -= t;
 		return *this;
 	}
-	quat& operator*=(float t)
+	quat& operator*=(long double t)
 	{
 		x *= t;
 		y *= t;
@@ -148,7 +148,7 @@ public:
 		w *= t;
 		return *this;
 	}
-	quat& operator/=(float t)
+	quat& operator/=(long double t)
 	{
 		return *this *= (1 / t);
 	}
@@ -170,19 +170,19 @@ public:
 		return quat(*this) /= q;
 	}
 
-	const quat operator+(float t) const
+	const quat operator+(long double t) const
 	{
 		return quat(*this) += t;
 	}
-	const quat operator-(float t) const
+	const quat operator-(long double t) const
 	{
 		return quat(*this) -= t;
 	}
-	const quat operator*(float t) const
+	const quat operator*(long double t) const
 	{
 		return quat(*this) *= t;
 	}
-	const quat operator/(float t) const
+	const quat operator/(long double t) const
 	{
 		return quat(*this) *= (1 / t);
 	}
@@ -200,7 +200,7 @@ public:
 		return (x != q.x) || (y != q.y) || (z != q.z) || (w != q.w);
 	}
 
-	float dot(const quat& q) const
+	long double dot(const quat& q) const
 	{
 		return x * q.x + y * q.y + z * q.z + w * q.w;
 	}
@@ -210,7 +210,7 @@ public:
 	}
 	void normalize()
 	{
-		float len = length();
+		long double len = length();
 		if (len > 0)
 			*this /= len;
 	}
@@ -220,13 +220,13 @@ public:
 		q.normalize();
 		return q;
 	}
-	float length() const
+	long double length() const
 	{
 		return sqrtl(x * x + y * y + z * z + w * w);
 	}
 };
 
-const quat operator+(const float& t, const quat& q);
-const quat operator-(const float& t, const quat& q);
-const quat operator*(const float& t, const quat& q);
-const quat operator/(const float& t, const quat& q);
+const quat operator+(const long double& t, const quat& q);
+const quat operator-(const long double& t, const quat& q);
+const quat operator*(const long double& t, const quat& q);
+const quat operator/(const long double& t, const quat& q);

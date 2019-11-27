@@ -15,7 +15,7 @@ using namespace DirectX::SimpleMath;
 class Simulation
 {
 public:
-	mat3 initialRotationQwe;
+	mat3 initialRotation;
 	float delta_time;
 	float time;
 	bool paused;
@@ -28,12 +28,12 @@ public:
 	float initialVelocity;
 	float m;
 
-	mat3 InvIQwe;
-	vec3 GQwe;
-	vec3 RQwe;
-	quat QQwe;
-	vec3 WQwe;
-	mat3 IQwe;
+	mat3 InvI;
+	vec3 G;
+	vec3 R;
+	quat Q;
+	vec3 W;
+	mat3 I;
 
 	vector<VertexPN> probes;
 	int maxProbes;

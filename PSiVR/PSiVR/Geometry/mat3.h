@@ -7,7 +7,7 @@
 class mat3
 {
 public:
-	float m[3][3];
+	long double m[3][3];
 
 	mat3()
 	{
@@ -15,7 +15,7 @@ public:
 			for (int j = 0; j < 3; j++)
 				m[i][j] = 0;
 	}
-	mat3(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33)
+	mat3(long double m11, long double m12, long double m13, long double m21, long double m22, long double m23, long double m31, long double m32, long double m33)
 	{
 		m[0][0] = m11;
 		m[0][1] = m12;
@@ -48,7 +48,7 @@ public:
 	mat3 inv() {
 		mat3 mat(*this);
 		int i, j;
-		float determinant = 0;
+		long double determinant = 0;
 
 		//finding determinant
 		for (i = 0; i < 3; i++)
@@ -86,7 +86,7 @@ public:
 	}
 	void transpose()
 	{
-		float tmp = m[0][1];
+		long double tmp = m[0][1];
 		m[0][1] = m[1][0];
 		m[1][0] = tmp;
 
@@ -99,7 +99,7 @@ public:
 		m[2][1] = tmp;
 	}
 
-	mat3 createScale(float x, float y, float z)
+	mat3 createScale(long double x, long double y, long double z)
 	{
 		mat3 scale;
 		scale.m[0][0] = x;
@@ -112,12 +112,12 @@ public:
 	{
 		return createScale(s.x, s.y, s.z);
 	}
-	mat3 createScale(float s)
+	mat3 createScale(long double s)
 	{
 		return createScale(s, s, s);
 	}
 
-	mat3 createRotationX(float rad)
+	mat3 createRotationX(long double rad)
 	{
 		mat3 scale;
 		scale.m[0][0] = 1;
@@ -128,7 +128,7 @@ public:
 
 		return scale;
 	}
-	mat3 createRotationY(float rad)
+	mat3 createRotationY(long double rad)
 	{
 		mat3 scale;
 		scale.m[1][1] = 1;
@@ -139,7 +139,7 @@ public:
 
 		return scale;
 	}
-	mat3 createRotationZ(float rad)
+	mat3 createRotationZ(long double rad)
 	{
 		mat3 scale;
 		scale.m[2][2] = 1;
@@ -170,28 +170,28 @@ public:
 		*this = *this * mat;
 		return *this;
 	}
-	mat3& operator+=(float t)
+	mat3& operator+=(long double t)
 	{
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++)
 				m[i][j] += t;
 		return *this;
 	}
-	mat3& operator-=(float t)
+	mat3& operator-=(long double t)
 	{
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++)
 				m[i][j] -= t;
 		return *this;
 	}
-	mat3& operator*=(float t)
+	mat3& operator*=(long double t)
 	{
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++)
 				m[i][j] *= t;
 		return *this;
 	}
-	mat3& operator/=(float t)
+	mat3& operator/=(long double t)
 	{
 		return *this *= (1 / t);
 	}
@@ -212,19 +212,19 @@ public:
 					result.m[i][j] += m[i][k] * mat.m[k][j];
 		return result;
 	}
-	const mat3 operator+(float t) const
+	const mat3 operator+(long double t) const
 	{
 		return mat3(*this) += t;
 	}
-	const mat3 operator-(float t) const
+	const mat3 operator-(long double t) const
 	{
 		return mat3(*this) -= t;
 	}
-	const mat3 operator*(float t) const
+	const mat3 operator*(long double t) const
 	{
 		return mat3(*this) *= t;
 	}
-	const mat3 operator/(float t) const
+	const mat3 operator/(long double t) const
 	{
 		return mat3(*this) *= (1 / t);
 	}
@@ -250,7 +250,7 @@ public:
 	}
 };
 
-const mat3 operator+(const float& t, const mat3& m);
-const mat3 operator-(const float& t, const mat3& m);
-const mat3 operator*(const float& t, const mat3& m);
-const mat3 operator/(const float& t, const mat3& m);
+const mat3 operator+(const long double& t, const mat3& m);
+const mat3 operator-(const long double& t, const mat3& m);
+const mat3 operator*(const long double& t, const mat3& m);
+const mat3 operator/(const long double& t, const mat3& m);
