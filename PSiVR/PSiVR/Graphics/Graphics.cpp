@@ -113,7 +113,8 @@ void Graphics::RenderMainPanel() {
 
 	ImGui::Checkbox("gravity", &simulation->gravityOn);
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
-	ImGui::SliderInt("probes count", &simulation->maxProbes, 50, 500);
+	ImGui::SliderInt("probes count", &simulation->maxProbes, 50, 1000);
+	ImGui::SliderInt("probes cycle", &simulation->probesCycleCount, 10, 100);
 
 	ImGui::End();
 }

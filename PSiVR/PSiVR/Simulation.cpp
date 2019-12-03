@@ -52,7 +52,7 @@ void Simulation::UpdateTensor()
 	I = initialRotation * I * initialRotation.transposed();
 	InvI = initialRotation * InvI * initialRotation.transposed();
 
-	G = vec3(0, 0, -m*9.81L);
+	G = vec3(0, 0, -m * 9.81L);
 	R = initialRotation.transform(vec3(0.5L, 0.5L, 0.5L));
 }
 
@@ -140,6 +140,6 @@ void Simulation::UpdateProbes()
 
 Matrix Simulation::GetModelMatrix()
 {
-	mat3 mat = (Q.rotationMat() * initialRotation).transposed();
+	mat3 mat = (Q.rotationMat() * initialRotation * initialRotation.createScale(cubeSize)).transposed();
 	return Matrix(XMFLOAT3X3(mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[2][0], mat.m[2][1], mat.m[2][2]));
 }
