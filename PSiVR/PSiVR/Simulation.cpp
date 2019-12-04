@@ -39,9 +39,9 @@ void Simulation::UpdateTensor()
 		-0.25L, -0.25L, 2.0L / 3.0L);
 
 	m = density;
-	I *= m;
+	//I *= m;
 	InvI = mat3(2.72727, 1.63636, 1.63636, 1.63636, 2.72727, 1.63636, 1.63636, 1.63636, 2.72727);
-	InvI /= m;
+	//InvI /= m;
 
 	long double pi = 3.14159265358979323846264338327950288419716939937510L;
 
@@ -89,34 +89,32 @@ void Simulation::Update()
 	quat newQ;
 	vec3 newW;
 
-	{
-		quat w0 = quat(W, 0);
-		quat qk1 = delta_time * 0.5L * Q * w0;
-		quat qk2 = delta_time * 0.5L * (Q + qk1 * 0.5L) * w0;
-		quat qk3 = delta_time * 0.5L * (Q + qk2 * 0.5L) * w0;
-		quat qk4 = delta_time * 0.5L * (Q + qk3) * w0;
+	quat w0 = quat(W, 0);
+	quat qk1 = delta_time * 0.5L * Q * w0;
+	quat qk2 = delta_time * 0.5L * (Q + qk1 * 0.5L) * w0;
+	quat qk3 = delta_time * 0.5L * (Q + qk2 * 0.5L) * w0;
+	quat qk4 = delta_time * 0.5L * (Q + qk3) * w0;
 
-		newQ = Q + (qk1 + 2.0L * qk2 + 2.0L * qk3 + qk4) / 6.0L;
-		newQ.normalize();
+	newQ = Q + (qk1 + 2.0L * qk2 + 2.0L * qk3 + qk4) / 6.0L;
+	newQ.normalize();
 
-		vec3 N = GetN(Q);
-		vec3 w = W;
-		vec3 k1 = delta_time * (N + w.cross(InvI.transform(w)));
+	vec3 N = GetN(Q);
+	vec3 w = W;
+	vec3 k1 = delta_time * (N + w.cross(InvI.transform(w)));
 
-		N = GetN(Q + qk1 * 0.5L);
-		w = W + k1 * 0.5L;
-		vec3 k2 = delta_time * (N + w.cross(InvI.transform(w)));
+	N = GetN(Q + qk1 * 0.5L);
+	w = W + k1 * 0.5L;
+	vec3 k2 = delta_time * (N + w.cross(InvI.transform(w)));
 
-		N = GetN(Q + qk2 * 0.5L);
-		w = W + k2 * 0.5L;
-		vec3 k3 = delta_time * (N + w.cross(InvI.transform(w)));
+	N = GetN(Q + qk2 * 0.5L);
+	w = W + k2 * 0.5L;
+	vec3 k3 = delta_time * (N + w.cross(InvI.transform(w)));
 
-		N = GetN(Q + qk3);
-		w = W + k3;
-		vec3 k4 = delta_time * (N + w.cross(InvI.transform(w)));
+	N = GetN(Q + qk3);
+	w = W + k3;
+	vec3 k4 = delta_time * (N + w.cross(InvI.transform(w)));
 
-		newW = W + (k1 + 2.0L * k2 + 2.0L * k3 + k4) / 6.0L;
-	}
+	newW = W + (k1 + 2.0L * k2 + 2.0L * k3 + k4) / 6.0L;
 
 	Q = newQ;
 	W = newW;
