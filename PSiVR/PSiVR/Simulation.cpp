@@ -20,10 +20,10 @@ void Simulation::Init()
 void Simulation::Reset()
 {
 	UpdateTensor();
-	Q = Q.identity();
+	Q = Quaternion::Identity;
 
-	W = initialRotation.transform(vec3(1, 1, 1));
-	W.normalize();
+	W = XMVector3TransformNormal(Vector3(1, 1, 1), initialRotation);
+	W.Normalize();
 	W *= initialVelocity;
 
 	time = 0;
@@ -33,27 +33,21 @@ void Simulation::Reset()
 
 void Simulation::UpdateTensor()
 {
-	I = mat3(
+	I = Matrix(XMFLOAT3X3(
 		2.0L / 3.0L, -0.25L, -0.25L,
 		-0.25L, 2.0L / 3.0L, -0.25L,
-		-0.25L, -0.25L, 2.0L / 3.0L);
+		-0.25L, -0.25L, 2.0L / 3.0L));
+	m = density * cubeSize* cubeSize* cubeSize;
+	I *= m * cubeSize* cubeSize;
 
-	m = density;
-	//I *= m;
-	InvI = mat3(2.72727, 1.63636, 1.63636, 1.63636, 2.72727, 1.63636, 1.63636, 1.63636, 2.72727);
-	//InvI /= m;
+	initialRotation = Matrix::CreateRotationZ(-XM_PIDIV4);
+	initialRotation *= Matrix::CreateRotationY(XMConvertToRadians(initialAngle) - 0.9553166181f);
 
-	long double pi = 3.14159265358979323846264338327950288419716939937510L;
+	I = initialRotation.Transpose() * I * initialRotation;
+	InvI = I.Invert();
 
-	initialRotation = initialRotation.createRotationY(initialAngle * pi / 180.0L);
-	initialRotation *= initialRotation.createRotationY(-0.95531661812450927816385710251575775424341469501001L);//XMMatrixRotationY(-XMScalarACos(sqrtf(3.0L) / 3.0L));
-	initialRotation *= initialRotation.createRotationZ(-pi / 4);
-
-	I = initialRotation * I * initialRotation.transposed();
-	InvI = initialRotation * InvI * initialRotation.transposed();
-
-	G = vec3(0, 0, -m * 9.81L);
-	R = initialRotation.transform(vec3(0.5L, 0.5L, 0.5L));
+	G = Vector3(0, 0, -m * 10L);
+	R = XMVector3TransformNormal(Vector3(0.5L, 0.5L, 0.5L), Matrix::CreateScale(cubeSize)* initialRotation);
 }
 
 void Simulation::Update(float dt)
@@ -72,11 +66,17 @@ void Simulation::Update(float dt)
 	}
 }
 
-vec3 Simulation::GetN(quat q)
+Vector3 Simulation::GetN(Quaternion q)
 {
-	vec3 N = vec3(0, 0, 0);
+	Vector3 N = Vector3(0, 0, 0);
 	if (gravityOn)
-		N = InvI.transform(R.cross(Q.inv().rotateVec(G)));
+	{
+		Quaternion invQ = Q;
+		invQ.Normalize();
+		invQ.Conjugate();
+
+		N = XMVector3TransformNormal(XMVector3Cross(R, XMVector3Rotate(G, invQ)), InvI);
+	}
 
 	if (gravityUp)
 		N = -N;
@@ -86,38 +86,34 @@ vec3 Simulation::GetN(quat q)
 
 void Simulation::Update()
 {
-	quat newQ;
-	vec3 newW;
 
-	quat w0 = quat(W, 0);
-	quat qk1 = delta_time * 0.5L * Q * w0;
-	quat qk2 = delta_time * 0.5L * (Q + qk1 * 0.5L) * w0;
-	quat qk3 = delta_time * 0.5L * (Q + qk2 * 0.5L) * w0;
-	quat qk4 = delta_time * 0.5L * (Q + qk3) * w0;
+	Vector3 N = GetN(Q);
+	Vector3 w = W;
+	Vector3 k1 = delta_time * (N + (Vector3)XMVector3TransformNormal((Vector3)XMVector3Cross(XMVector3TransformNormal(w, I), w), InvI));
+	Quaternion qk1 = delta_time * 0.5L  * Quaternion(w, 0) * Q;
 
-	newQ = Q + (qk1 + 2.0L * qk2 + 2.0L * qk3 + qk4) / 6.0L;
-	newQ.normalize();
-
-	vec3 N = GetN(Q);
-	vec3 w = W;
-	vec3 k1 = delta_time * (N + w.cross(InvI.transform(w)));
 
 	N = GetN(Q + qk1 * 0.5L);
 	w = W + k1 * 0.5L;
-	vec3 k2 = delta_time * (N + w.cross(InvI.transform(w)));
+	Vector3 k2 = delta_time * (N + (Vector3)XMVector3TransformNormal((Vector3)XMVector3Cross(XMVector3TransformNormal(w, I), w), InvI));
+	Quaternion qk2 = delta_time * 0.5L  * Quaternion(w, 0) * (Q + qk1 * 0.5L);
+
 
 	N = GetN(Q + qk2 * 0.5L);
 	w = W + k2 * 0.5L;
-	vec3 k3 = delta_time * (N + w.cross(InvI.transform(w)));
+	Vector3 k3 = delta_time * (N + (Vector3)XMVector3TransformNormal((Vector3)XMVector3Cross(XMVector3TransformNormal(w, I), w), InvI));
+	Quaternion qk3 = delta_time * 0.5L  * Quaternion(w, 0) * (Q + qk2 * 0.5L);
+
 
 	N = GetN(Q + qk3);
 	w = W + k3;
-	vec3 k4 = delta_time * (N + w.cross(InvI.transform(w)));
+	Vector3 k4 = delta_time * (N + (Vector3)XMVector3TransformNormal((Vector3)XMVector3Cross(XMVector3TransformNormal(w, I), w), InvI));
+	Quaternion qk4 = delta_time * 0.5L *  Quaternion(w, 0) * (Q + qk3);
 
-	newW = W + (k1 + 2.0L * k2 + 2.0L * k3 + k4) / 6.0L;
 
-	Q = newQ;
-	W = newW;
+	W = W + Vector3((k1 + 2.0L * k2 + 2.0L * k3 + k4) / 6.0L);
+	Q = Q + (Quaternion)((qk1 + 2.0L * qk2 + 2.0L * qk3 + qk4) / 6.0L);
+	Q.Normalize();
 }
 
 void Simulation::UpdateProbes()
@@ -138,6 +134,5 @@ void Simulation::UpdateProbes()
 
 Matrix Simulation::GetModelMatrix()
 {
-	mat3 mat = (Q.rotationMat() * initialRotation * initialRotation.createScale(cubeSize)).transposed();
-	return Matrix(XMFLOAT3X3(mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[2][0], mat.m[2][1], mat.m[2][2]));
+	return Matrix::CreateScale(cubeSize) * initialRotation * XMMatrixRotationQuaternion(Q);
 }

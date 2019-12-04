@@ -4,9 +4,10 @@
 #include <math.h> 
 #include <DirectXMath.h>
 #include <SimpleMath.h>
-
 #include "Graphics/Vertex.h"
-#include "Geometry/quat.h"
+
+//#include "Graphics/Vertex.h"
+//#include "Geometry/Quaternion.h"
 
 using namespace std;
 using namespace DirectX;
@@ -15,7 +16,8 @@ using namespace DirectX::SimpleMath;
 class Simulation
 {
 public:
-	mat3 initialRotation;
+	Matrix initialRotation;
+	Matrix ir;
 	float delta_time;
 	float time;
 	bool paused;
@@ -29,12 +31,12 @@ public:
 	float initialVelocity;
 	float m;
 
-	mat3 InvI;
-	vec3 G;
-	vec3 R;
-	quat Q;
-	vec3 W;
-	mat3 I;
+	Matrix InvI;
+	Vector3 G;
+	Vector3 R;
+	Quaternion Q;
+	Vector3 W;
+	Matrix I;
 
 	vector<VertexPN> probes;
 	int maxProbes;
@@ -50,6 +52,6 @@ public:
 	Matrix GetModelMatrix();
 	void UpdateTensor();
 	void UpdateProbes();
-	vec3 GetN(quat q);
+	Vector3 GetN(Quaternion q);
 };
 
