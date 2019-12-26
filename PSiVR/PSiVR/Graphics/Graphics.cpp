@@ -31,26 +31,9 @@ void Graphics::RenderFrame()
 
 	RenderVisualisation();
 	RendeGui();
-	updateFPSCounter();
 
 	this->swapchain->Present(0, NULL);
 }
-
-void Graphics::updateFPSCounter() {
-	static int fpsCounter = 0;
-	static std::string fpsString = "FPS: 0";
-	fpsCounter += 1;
-	if (fpsTimer.GetMilisecondsElapsed() > 1000.0)
-	{
-		fpsString = "FPS: " + std::to_string(fpsCounter);
-		fpsCounter = 0;
-		fpsTimer.Restart();
-	}
-	spriteBatch->Begin();
-	spriteFont->DrawString(spriteBatch.get(), StringConverter::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0.0f, 0.0f), DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteBatch->End();
-}
-
 void Graphics::InitGui(HWND hwnd) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -70,9 +53,8 @@ void Graphics::RendeGui() {
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
-
 void Graphics::RenderMainPanel() {
-	ImGui::SetNextWindowSize(ImVec2(400, 950), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiCond_Once);
 	ImGui::SetNextWindowPos(ImVec2(10, 30), ImGuiCond_Once);
 	if (!ImGui::Begin("Main Panel"))
 	{
@@ -108,7 +90,6 @@ void Graphics::RenderMainPanel() {
 
 	ImGui::End();
 }
-
 void Graphics::RenderVisualisation()
 {
 	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
@@ -119,20 +100,12 @@ void Graphics::RenderVisualisation()
 	this->deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pureColorPixelshader.GetShader(), NULL, 0);
 
-	UINT offset = 0;
-
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
 	this->deviceContext->PSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
 
-		cbColoredObject.data.worldMatrix = Matrix::Identity;
-		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		cbColoredObject.data.color = { 0.8f, 0.4f, 0.0f, 1.0f };
-
-		if (!cbColoredObject.ApplyChanges()) return;
-		deviceContext->IASetVertexBuffers(0, 1, vbFrame.GetAddressOf(), vbFrame.StridePtr(), &offset);
-		deviceContext->IASetIndexBuffer(ibFrame.Get(), DXGI_FORMAT_R32_UINT, 0);
-		deviceContext->DrawIndexed(ibFrame.BufferSize(), 0, 0);
-
+	RenderFrame(vbBox, ibBox, { 0.8f ,0.8f ,0.8f ,1 });
+	RenderFrame(vbFrame, ibFrame, { 0.8f ,0.8f ,0.8f ,1 });
+	//RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 });
 
 	//if (guiData->showProbes)
 	//{
@@ -154,7 +127,19 @@ void Graphics::RenderVisualisation()
 	//	this->deviceContext->Draw(simulation->probes.size(), 0);
 	//}
 }
+void Graphics::RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color)
+{
+	UINT offset = 0;
 
+	cbColoredObject.data.worldMatrix = Matrix::Identity;
+	cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	cbColoredObject.data.color = color;
+
+	if (!cbColoredObject.ApplyChanges()) return;
+	deviceContext->IASetVertexBuffers(0, 1, vb.GetAddressOf(), vb.StridePtr(), &offset);
+	deviceContext->IASetIndexBuffer(ib.Get(), DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->DrawIndexed(ib.BufferSize(), 0, 0);
+}
 
 bool Graphics::InitializeDirectX(HWND hwnd)
 {
@@ -294,13 +279,8 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 		return false;
 	}
 
-	spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
-	spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
-
-
 	return true;
 }
-
 bool Graphics::InitializeShaders()
 {
 	D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -323,7 +303,7 @@ bool Graphics::InitializeShaders()
 	return true;
 }
 
-void Graphics::GetBox(Vector3 lb, Vector3 ub, vector<VertexPN>& vertices, vector<int>& indices)
+void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexPN>& vertices, vector<int>& indices)
 {
 	vertices = {
 		VertexPN(lb.x,lb.y,lb.z, 0.0f, 0.0f, 0.0f),
@@ -348,7 +328,7 @@ void Graphics::InitBox()
 {
 	vector<VertexPN> vertices;
 	vector<int> indices;
-	GetBox(simulation->lb, simulation->ub, vertices, indices);
+	GetFrame(simulation->lb, simulation->ub, vertices, indices);
 
 	HRESULT hr = this->vbBox.Initialize(this->device.Get(), vertices.data(), vertices.size());
 	if (FAILED(hr))
@@ -362,7 +342,7 @@ void Graphics::InitFrame()
 {
 	vector<VertexPN> vertices;
 	vector<int> indices;
-	GetBox(simulation->f[0][0][0], simulation->f[1][1][1], vertices, indices);
+	GetFrame(simulation->f[0][0][0], simulation->f[3][3][3], vertices, indices);
 
 	HRESULT hr = this->vbFrame.Initialize(this->device.Get(), vertices.data(), vertices.size(), true);
 	if (FAILED(hr))

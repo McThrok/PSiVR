@@ -32,7 +32,7 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
-	void GetBox(Vector3 lb, Vector3 ub,  vector<VertexPN>& vertices, vector<int>& indices);
+	void GetFrame(Vector3 lb, Vector3 ub,  vector<VertexPN>& vertices, vector<int>& indices);
 	void InitBox();
 	void InitFrame();
 	void InitJelly();
@@ -42,8 +42,8 @@ private:
 	void RendeGui();
 	void RenderMainPanel();
 	void RenderVisualisation();
-
-	void updateFPSCounter();
+	void RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color);
+	
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
@@ -65,9 +65,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
-
-	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
-	std::unique_ptr<DirectX::SpriteFont> spriteFont;
 
 	int windowWidth = 0;
 	int windowHeight = 0;

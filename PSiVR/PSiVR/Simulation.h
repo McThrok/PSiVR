@@ -35,5 +35,7 @@ public:
 	void Reset();
 	void Update(float dt);
 	void Update();
+
+	void InitVector(vector<vector<vector<Vector3>>>& v);
 };
 

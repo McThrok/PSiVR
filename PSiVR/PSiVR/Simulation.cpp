@@ -8,33 +8,32 @@ void Simulation::Init()
 
 	time = 0;
 	simulationSpeed = 1;
-	cubeSize = 1;
+	cubeSize = 2;
 	paused = false;
 	delta_time = 0.01;
 
-	float boxSize = 20;
+	float boxSize = 10;
 	lb = -(boxSize / 2) * Vector3(1, 1, 1);
 	ub = (boxSize / 2) * Vector3(1, 1, 1);
 
-	for (int i = 0; i < 4; i++)
-	{
-		p[i] = vector<vector<Vector3>>(4);
-		pPrev[i] = vector<vector<Vector3>>(4);
-		f[i] = vector<vector<Vector3>>(4);
-		v[i] = vector<vector<Vector3>>(4);
-		vPrev[i] = vector<vector<Vector3>>(4);
-
-		for (int j = 0; j < 4; j++)
-		{
-			p[i][j] = vector<Vector3>(4);
-			pPrev[i][j] = vector<Vector3>(4);
-			f[i][j] = vector<Vector3>(4);
-			v[i][j] = vector<Vector3>(4);
-			vPrev[i][j] = vector<Vector3>(4);
-		}
-	}
+	InitVector(p);
+	InitVector(pPrev);
+	InitVector(f);
+	InitVector(v);
+	InitVector(vPrev);
 
 	Reset();
+}
+
+void Simulation::InitVector(vector<vector<vector<Vector3>>>& v)
+{
+	v = vector<vector<vector<Vector3>>>(4);
+	for (int i = 0; i < 4; i++)
+	{
+		v[i] = vector<vector<Vector3>>(4);
+		for (int j = 0; j < 4; j++)
+			v[i][j] = vector<Vector3>(4);
+	}
 }
 
 void Simulation::Reset()
@@ -43,7 +42,8 @@ void Simulation::Reset()
 		for (int j = 0; j < 4; j++)
 			for (int k = 0; k < 4; k++)
 			{
-				p[i][j][k] = Vector3(i, j, k) * cubeSize - Vector3(1, 1, 1) * (cubeSize / 2);
+				p[i][j][k] = Vector3(i, j, k) * cubeSize / 3;
+				p[i][j][k] -= Vector3(1, 1, 1) * (cubeSize / 2);
 				pPrev[i][j][k] = p[i][j][k];
 				f[i][j][k] = p[i][j][k];
 
