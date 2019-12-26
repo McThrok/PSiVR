@@ -6,9 +6,6 @@
 #include <SimpleMath.h>
 #include "Graphics/Vertex.h"
 
-//#include "Graphics/Vertex.h"
-//#include "Geometry/Quaternion.h"
-
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -16,42 +13,27 @@ using namespace DirectX::SimpleMath;
 class Simulation
 {
 public:
-	Matrix initialRotation;
-	Matrix ir;
+
+	Vector3 lb, ub;
+	vector<vector<vector<Vector3>>> f;
+
+	vector<vector<vector<Vector3>>> p;
+	vector<vector<vector<Vector3>>> pPrev;
+
+	vector<vector<vector<Vector3>>> v;
+	vector<vector<vector<Vector3>>> vPrev;
+
 	float delta_time;
 	float time;
 	bool paused;
-	bool gravityOn;
-	bool gravityUp;
 
-	int initialAngle;
 	float cubeSize;
 	float simulationSpeed;
-	float density;
-	float initialVelocity;
-	float m;
-
-	Matrix InvI;
-	Vector3 G;
-	Vector3 R;
-	Quaternion Q;
-	Vector3 W;
-	Matrix I;
-
-	vector<VertexPN> probes;
-	int maxProbes;
-	int probesCycleCount;
-	int probesCounter;
-
+	float m,c,k;
 
 	void Init();
 	void Reset();
 	void Update(float dt);
 	void Update();
-
-	Matrix GetModelMatrix();
-	void UpdateTensor();
-	void UpdateProbes();
-	Vector3 GetN(Quaternion q);
 };
 

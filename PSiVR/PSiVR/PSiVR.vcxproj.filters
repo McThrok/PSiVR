@@ -235,7 +235,7 @@
     <FxCompile Include="my_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="diagonal_ps.hlsl">
+    <FxCompile Include="pureColor_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

@@ -228,7 +228,7 @@ copy "$(OutDir)*.cso" "$(ProjectDir)"</Command>
     <ClInclude Include="WindowContainer.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="diagonal_ps.hlsl">
+    <FxCompile Include="pureColor_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>

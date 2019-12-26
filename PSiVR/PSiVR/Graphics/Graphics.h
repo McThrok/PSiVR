@@ -32,6 +32,11 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
+	void GetBox(Vector3 lb, Vector3 ub,  vector<VertexPN>& vertices, vector<int>& indices);
+	void InitBox();
+	void InitFrame();
+	void InitJelly();
+	void InitConstantBuffers();
 
 	void InitGui(HWND hwnd);
 	void RendeGui();
@@ -40,8 +45,6 @@ private:
 
 	void updateFPSCounter();
 
-
-
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;
@@ -49,16 +52,14 @@ private:
 
 	VertexShader vertexshader;
 	PixelShader pixelshader;
-	PixelShader diagonalPixelshader;
+	PixelShader pureColorPixelshader;
 
 	ConstantBuffer<ColoredObjectBuffer> cbColoredObject;
 	ConstantBuffer<LightBuffer> cbLight;
 
-	int max_probes = 1000;
-	VertexBuffer<VertexPN> vbProbes;
 
-	VertexBuffer<VertexPN> vbCube;
-	IndexBuffer ibCube;
+	VertexBuffer<VertexPN> vbBox, vbJelly, vbFrame;
+	IndexBuffer ibBox, ibJelly, ibFrame;
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;

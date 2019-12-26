@@ -97,24 +97,14 @@ void Graphics::RenderMainPanel() {
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.0005f, 0.05f, "%.4f");
 
 	ImGui::Checkbox("show cube", &guiData->showCube);
-	ImGui::Checkbox("show gravity", &guiData->showGravity);
-	ImGui::Checkbox("show probes", &guiData->showProbes);
-	ImGui::Checkbox("show diagonal", &guiData->showDiagonal);
-	ImGui::Checkbox("center of mass", &guiData->showMassCenter);
 
 	ImGui::Separator();
 	bool update = false;
 	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.2, 2)) update = true;
-	if (ImGui::SliderFloat("density", &simulation->density, 0.1, 10)) update = true;
-	if (ImGui::SliderInt("initial angle", &simulation->initialAngle, -180, 180)) update = true;
-	if (ImGui::SliderFloat("initial angular velocity", &simulation->initialVelocity, 0, 5)) update = true;
 	if (update) simulation->Reset();
 	ImGui::Separator();
 
-	ImGui::Checkbox("gravity", &simulation->gravityOn);
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
-	ImGui::SliderInt("probes count", &simulation->maxProbes, 50, 1000);
-	ImGui::SliderInt("probes cycle", &simulation->probesCycleCount, 10, 100);
 
 	ImGui::End();
 }
@@ -122,74 +112,47 @@ void Graphics::RenderMainPanel() {
 void Graphics::RenderVisualisation()
 {
 	this->deviceContext->IASetInputLayout(this->vertexshader.GetInputLayout());
-	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	this->deviceContext->RSSetState(this->rasterizerState.Get());
 	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->deviceContext->VSSetShader(vertexshader.GetShader(), NULL, 0);
-	this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
+	this->deviceContext->PSSetShader(pureColorPixelshader.GetShader(), NULL, 0);
 
 	UINT offset = 0;
 
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
 	this->deviceContext->PSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
 
-	if (guiData->showCube)
-	{
-		cbColoredObject.data.worldMatrix = simulation->GetModelMatrix();
+		cbColoredObject.data.worldMatrix = Matrix::Identity;
 		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 		cbColoredObject.data.color = { 0.8f, 0.4f, 0.0f, 1.0f };
 
 		if (!cbColoredObject.ApplyChanges()) return;
-		this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
-		this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
-		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
-	}
+		deviceContext->IASetVertexBuffers(0, 1, vbFrame.GetAddressOf(), vbFrame.StridePtr(), &offset);
+		deviceContext->IASetIndexBuffer(ibFrame.Get(), DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->DrawIndexed(ibFrame.BufferSize(), 0, 0);
 
-	if (guiData->showMassCenter) {
-		cbColoredObject.data.worldMatrix = Matrix::CreateTranslation(-0.5, -0.5, -0.5) * Matrix::CreateScale(0.1f, 0.1f, 0.1f)
-			* Matrix::CreateTranslation(0.5f, 0.5f, 0.5f) * simulation->GetModelMatrix();
-		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		cbColoredObject.data.color = { 0.2f,0.8f,0.2f,1.0f };
 
-		if (!cbColoredObject.ApplyChanges()) return;
-		this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
-		this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
-		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
+	//if (guiData->showProbes)
+	//{
+	//	this->deviceContext->PSSetShader(diagonalPixelshader.GetShader(), NULL, 0);
 
-	}
+	//	cbColoredObject.data.worldMatrix = Matrix::Identity;
+	//	cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	//	cbColoredObject.data.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	if (guiData->showDiagonal)
-	{
-		cbColoredObject.data.worldMatrix = Matrix::CreateTranslation(-0.5, -0.5, 0) * Matrix::CreateScale(0.03f, 0.03f, sqrtf(3))
-			* XMMatrixRotationY(XMScalarACos(sqrtf(3) / 3)) * XMMatrixRotationZ(XM_PI / 4) * simulation->GetModelMatrix();
-		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		cbColoredObject.data.color = { 1.0f,0.2f,0.2f,1.0f };
+	//	if (!cbColoredObject.ApplyChanges()) return;
+	//	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-		if (!cbColoredObject.ApplyChanges()) return;
-		this->deviceContext->IASetVertexBuffers(0, 1, vbCube.GetAddressOf(), vbCube.StridePtr(), &offset);
-		this->deviceContext->IASetIndexBuffer(ibCube.Get(), DXGI_FORMAT_R32_UINT, 0);
-		this->deviceContext->DrawIndexed(ibCube.BufferSize(), 0, 0);
-	}
+	//	D3D11_MAPPED_SUBRESOURCE resource;
+	//	this->deviceContext->Map(vbProbes.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+	//	memcpy(resource.pData, simulation->probes.data(), simulation->probes.size() * sizeof(VertexPN));
+	//	this->deviceContext->Unmap(vbProbes.Get(), 0);
 
-	if (guiData->showProbes)
-	{
-		this->deviceContext->PSSetShader(diagonalPixelshader.GetShader(), NULL, 0);
-
-		cbColoredObject.data.worldMatrix = Matrix::Identity;
-		cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-		cbColoredObject.data.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		if (!cbColoredObject.ApplyChanges()) return;
-		this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
-
-		D3D11_MAPPED_SUBRESOURCE resource;
-		this->deviceContext->Map(vbProbes.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-		memcpy(resource.pData, simulation->probes.data(), simulation->probes.size() * sizeof(VertexPN));
-		this->deviceContext->Unmap(vbProbes.Get(), 0);
-
-		this->deviceContext->IASetVertexBuffers(0, 1, vbProbes.GetAddressOf(), vbProbes.StridePtr(), &offset);
-		this->deviceContext->Draw(simulation->probes.size(), 0);
-	}
+	//	this->deviceContext->IASetVertexBuffers(0, 1, vbProbes.GetAddressOf(), vbProbes.StridePtr(), &offset);
+	//	this->deviceContext->Draw(simulation->probes.size(), 0);
+	//}
 }
 
 
@@ -354,148 +317,120 @@ bool Graphics::InitializeShaders()
 	if (!pixelshader.Initialize(this->device, L"my_ps.cso"))
 		return false;
 
-	if (!diagonalPixelshader.Initialize(this->device, L"diagonal_ps.cso"))
+	if (!pureColorPixelshader.Initialize(this->device, L"pureColor_ps.cso"))
 		return false;
 
 	return true;
 }
 
-bool Graphics::InitializeScene()
+void Graphics::GetBox(Vector3 lb, Vector3 ub, vector<VertexPN>& vertices, vector<int>& indices)
 {
-	VertexPN v[] = {
-		VertexPN(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f),
-		VertexPN(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f),
-		VertexPN(1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f),
-		VertexPN(0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f),
+	vertices = {
+		VertexPN(lb.x,lb.y,lb.z, 0.0f, 0.0f, 0.0f),
+		VertexPN(ub.x,lb.y,lb.z, 0.0f, 0.0f, 0.0f),
+		VertexPN(lb.x,ub.y,lb.z, 0.0f, 0.0f, 0.0f),
+		VertexPN(ub.x,ub.y,lb.z, 0.0f, 0.0f, 0.0f),
 
-		VertexPN(1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-		VertexPN(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-		VertexPN(0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-		VertexPN(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-
-		VertexPN(1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
-		VertexPN(1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f),
-		VertexPN(1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
-		VertexPN(1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f),
-
-		VertexPN(0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f),
-		VertexPN(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
-		VertexPN(0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f),
-		VertexPN(0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f),
-
-		VertexPN(0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-		VertexPN(1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-		VertexPN(1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-		VertexPN(0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f),
-
-		VertexPN(0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f),
-		VertexPN(1.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f),
-		VertexPN(1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
-		VertexPN(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f)
+		VertexPN(lb.x,lb.y,ub.z, 0.0f, 0.0f, 0.0f),
+		VertexPN(ub.x,lb.y,ub.z, 0.0f, 0.0f, 0.0f),
+		VertexPN(lb.x,ub.y,ub.z, 0.0f, 0.0f, 0.0f),
+		VertexPN(ub.x,ub.y,ub.z, 0.0f, 0.0f, 0.0f),
 	};
 
-	int indices[] =
+	indices =
 	{
-		0, 2, 3, 0,1, 2,
-		4, 6, 7, 4,5, 6,
-		8, 10, 11, 8, 9, 10,
-		12, 14, 15, 12, 13, 14,
-		16, 18, 19, 16, 17, 18,
-		20, 22, 23, 20, 21, 22,
-
-		//0,3,2,0,2,1,
-		//4,7,6,4,6,5,
-		//8,11,10,8,10,9,
-		//12,15,14,12,14,13,
-		//16,19,18,16,18,17,
-		//20,23,22,20,22,21
+		0,1,2,3,0,2,1,3,
+		4,5,6,7,4,6,5,7,
+		0,4,1,5,2,6,3,7
 	};
+}
+void Graphics::InitBox()
+{
+	vector<VertexPN> vertices;
+	vector<int> indices;
+	GetBox(simulation->lb, simulation->ub, vertices, indices);
 
-	/*XMFLOAT3 p[] = {
-		{ 0.000000 ,0.000000, 0.000000 },
-		{ 0.000000 ,1.154701, 1.632993 },
-		{ -1.414214 ,1.154701, -0.816497 },
-		{ -1.414214 ,2.309401, 0.816497 },
-		{ 1.414214 ,1.154701, -0.816497 },
-		{ 1.414214 ,2.309401, 0.816497 },
-		{ 0.000000 ,2.309401, -1.632993 },
-		{ 0.000000 ,3.464102, 0.000000 },
-	};
-
-	XMFLOAT3 n[] = {
-		{ -0.7071, -0.5774, 0.4082 },
-		{ -0.7071, 0.5774 , -0.4082},
-		{ 0.7071 , 0.5774 , -0.4082},
-		{ 0.7071 , -0.5774, 0.4082 },
-		{ -0.0000, -0.5774, -0.8165},
-		{ 0.0000 , 0.5774 ,0.8165 },
-	};
-
-	VertexPN v[] = {
-		VertexPN(p[1],n[0]),VertexPN(p[2],n[0]),VertexPN(p[0],n[0]),
-		VertexPN(p[3],n[1]),VertexPN(p[6],n[1]),VertexPN(p[2],n[1]),
-
-		VertexPN(p[7],n[2]),VertexPN(p[4],n[2]),VertexPN(p[6],n[2]),
-		VertexPN(p[4],n[3]),VertexPN(p[1],n[3]),VertexPN(p[0],n[3]),
-
-		VertexPN(p[6],n[4]),VertexPN(p[0],n[4]),VertexPN(p[2],n[4]),
-		VertexPN(p[3],n[5]),VertexPN(p[5],n[5]),VertexPN(p[7],n[5]),
-
-		VertexPN(p[1],n[0]),VertexPN(p[3],n[0]),VertexPN(p[2],n[0]),
-		VertexPN(p[3],n[1]),VertexPN(p[7],n[1]),VertexPN(p[6],n[1]),
-
-		VertexPN(p[7],n[2]),VertexPN(p[5],n[2]),VertexPN(p[4],n[2]),
-		VertexPN(p[4],n[3]),VertexPN(p[5],n[3]),VertexPN(p[1],n[3]),
-
-		VertexPN(p[6],n[4]),VertexPN(p[4],n[4]),VertexPN(p[0],n[4]),
-		VertexPN(p[3],n[5]),VertexPN(p[1],n[5]),VertexPN(p[5],n[5]),
-	};
-
-	int indices[36];
-	for (int i = 0; i < 36; i++)
-		indices[i] = i;*/
-
-	HRESULT hr = this->vbCube.Initialize(this->device.Get(), v, ARRAYSIZE(v));
+	HRESULT hr = this->vbBox.Initialize(this->device.Get(), vertices.data(), vertices.size());
 	if (FAILED(hr))
-	{
 		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
-		return false;
-	}
 
-	//Load Index Data
-	hr = this->ibCube.Initialize(this->device.Get(), indices, ARRAYSIZE(indices));
+	hr = this->ibBox.Initialize(this->device.Get(), indices.data(), indices.size());
 	if (FAILED(hr))
-	{
 		ErrorLogger::Log(hr, "Failed to create indices buffer.");
-		return hr;
-	}
+}
+void Graphics::InitFrame()
+{
+	vector<VertexPN> vertices;
+	vector<int> indices;
+	GetBox(simulation->f[0][0][0], simulation->f[1][1][1], vertices, indices);
 
-
-	VertexPN dummy_verts[1000];
-	for (int i = 0; i < 1000; i++)
-		dummy_verts[i] = VertexPN(0, 0, 0, 0, 0, 0);
-
-	hr = this->vbProbes.Initialize(this->device.Get(), dummy_verts, ARRAYSIZE(dummy_verts), true);
+	HRESULT hr = this->vbFrame.Initialize(this->device.Get(), vertices.data(), vertices.size(), true);
 	if (FAILED(hr))
-	{
 		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
-		return false;
-	}
 
-	//Initialize Constant Buffer(s)
-	hr = this->cbColoredObject.Initialize(this->device.Get(), this->deviceContext.Get());
+	hr = this->ibFrame.Initialize(this->device.Get(), indices.data(), indices.size());
 	if (FAILED(hr))
-	{
+		ErrorLogger::Log(hr, "Failed to create indices buffer.");
+}
+void Graphics::InitJelly()
+{
+	vector<VertexPN> vertices;
+	vector<int> indices;
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			for (int k = 0; k < 4; k++)
+				vertices.push_back(VertexPN(simulation->p[i][j][k], { 0,0,0 }));
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			for (int k = 0; k < 3; k++)
+			{
+				indices.push_back(i * 16 + j * 4 + k);
+				indices.push_back(i * 16 + j * 4 + k + 1);
+			}
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 3; j++)
+			for (int k = 0; k < 4; k++)
+			{
+				indices.push_back(i * 16 + j * 4 + k);
+				indices.push_back(i * 16 + (j + 1) * 4 + k);
+			}
+
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 4; j++)
+			for (int k = 0; k < 4; k++)
+			{
+				indices.push_back(i * 16 + j * 4 + k);
+				indices.push_back((i + 1) * 16 + j * 4 + k);
+			}
+
+	HRESULT hr = this->vbJelly.Initialize(this->device.Get(), vertices.data(), vertices.size(), true);
+	if (FAILED(hr))
+		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
+
+	hr = this->ibJelly.Initialize(this->device.Get(), indices.data(), indices.size());
+	if (FAILED(hr))
+		ErrorLogger::Log(hr, "Failed to create indices buffer.");
+}
+void Graphics::InitConstantBuffers()
+{
+	HRESULT hr = this->cbColoredObject.Initialize(this->device.Get(), this->deviceContext.Get());
+	if (FAILED(hr))
 		ErrorLogger::Log(hr, "Failed to initialize constant buffer.");
-		return false;
-	}
 
 	hr = this->cbLight.Initialize(this->device.Get(), this->deviceContext.Get());
 	if (FAILED(hr))
-	{
 		ErrorLogger::Log(hr, "Failed to initialize constant buffer.");
-		return false;
-	}
+}
+bool Graphics::InitializeScene()
+{
+	InitBox();
+	InitFrame();
+	InitJelly();
+
+	InitConstantBuffers();
 
 	camera.SetPosition(0, -5.0f, 0);
 	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
