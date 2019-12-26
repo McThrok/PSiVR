@@ -105,7 +105,8 @@ void Graphics::RenderVisualisation()
 
 	RenderFrame(vbBox, ibBox, { 0.8f ,0.8f ,0.8f ,1 });
 	RenderFrame(vbFrame, ibFrame, { 0.8f ,0.8f ,0.8f ,1 });
-	//RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 });
+	UpdateJellyMesh();
+	RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 });
 
 	//if (guiData->showProbes)
 	//{
@@ -315,7 +316,18 @@ void Graphics::UpdateFrameMesh()
 }
 void Graphics::UpdateJellyMesh()
 {
+	D3D11_MAPPED_SUBRESOURCE resource;
+	this->deviceContext->Map(vbJelly.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 
+	vector<VertexPN> verts;
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			for (int k = 0; k < 4; k++)
+				verts.push_back(VertexPN(simulation->p[i][j][k], { 0,0,0 }));
+
+	memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexPN));
+	this->deviceContext->Unmap(vbJelly.Get(), 0);
 }
 
 void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexPN>& vertices, vector<int>& indices)
