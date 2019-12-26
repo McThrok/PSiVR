@@ -99,3 +99,11 @@ void Simulation::Update()
 	//Q = Q + (Quaternion)((qk1 + 2.0L * qk2 + 2.0L * qk3 + qk4) / 6.0L);
 	//Q.Normalize();
 }
+
+void Simulation::AdjustFrame(Vector3 v)
+{
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			for (int k = 0; k < 4; k++)
+				f[i][j][k] += v;
+}

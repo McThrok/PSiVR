@@ -303,6 +303,21 @@ bool Graphics::InitializeShaders()
 	return true;
 }
 
+void Graphics::UpdateFrameMesh()
+{
+	D3D11_MAPPED_SUBRESOURCE resource;
+	this->deviceContext->Map(vbFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+	vector<VertexPN> verts;
+	vector<int> inds;
+	GetFrame(simulation->f[0][0][0], simulation->f[3][3][3], verts, inds);
+	memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexPN));
+	this->deviceContext->Unmap(vbFrame.Get(), 0);
+}
+void Graphics::UpdateJellyMesh()
+{
+
+}
+
 void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexPN>& vertices, vector<int>& indices)
 {
 	vertices = {

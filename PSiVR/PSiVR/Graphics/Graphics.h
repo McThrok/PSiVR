@@ -28,6 +28,9 @@ public:
 	Camera camera;
 	Simulation* simulation;
 	GuiData * guiData;
+
+	void UpdateFrameMesh();
+	void UpdateJellyMesh();
 private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();

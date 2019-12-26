@@ -35,6 +35,7 @@ public:
 	void Reset();
 	void Update(float dt);
 	void Update();
+	void AdjustFrame(Vector3 v);
 
 	void InitVector(vector<vector<vector<Vector3>>>& v);
 };
