@@ -18,9 +18,11 @@ void Simulation::Init()
 
 	InitVector(p);
 	InitVector(pPrev);
+	InitVector(pPrevPrev);
 	InitVector(f);
 	InitVector(v);
 	InitVector(vPrev);
+	InitVector(vPrevPrev);
 
 	Reset();
 }
@@ -45,10 +47,12 @@ void Simulation::Reset()
 				p[i][j][k] = Vector3(i, j, k) * cubeSize / 3;
 				p[i][j][k] -= Vector3(1, 1, 1) * (cubeSize / 2);
 				pPrev[i][j][k] = p[i][j][k];
+				pPrevPrev[i][j][k] = p[i][j][k];
 				f[i][j][k] = p[i][j][k];
 
 				v[i][j][k] = Vector3(0, 0, 0);
 				vPrev[i][j][k] = v[i][j][k];
+				vPrevPrev[i][j][k] = v[i][j][k];
 			}
 }
 
@@ -70,7 +74,7 @@ void Simulation::Update(float dt)
 
 void Simulation::Update()
 {
-
+	 
 	//Vector3 N = GetN(Q);
 	//Vector3 w = W;
 	//Vector3 k1 = delta_time * (N + (Vector3)XMVector3TransformNormal((Vector3)XMVector3Cross(XMVector3TransformNormal(w, I), w), InvI));

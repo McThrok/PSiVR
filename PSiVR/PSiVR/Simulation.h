@@ -17,11 +17,8 @@ public:
 	Vector3 lb, ub;
 	vector<vector<vector<Vector3>>> f;
 
-	vector<vector<vector<Vector3>>> p;
-	vector<vector<vector<Vector3>>> pPrev;
-
-	vector<vector<vector<Vector3>>> v;
-	vector<vector<vector<Vector3>>> vPrev;
+	vector<vector<vector<Vector3>>> p, pPrev, pPrevPrev;
+	vector<vector<vector<Vector3>>> v, vPrev, vPrevPrev;
 
 	float delta_time;
 	float time;
@@ -29,7 +26,7 @@ public:
 
 	float cubeSize;
 	float simulationSpeed;
-	float m,c,k;
+	float m, c, k;
 
 	void Init();
 	void Reset();
@@ -38,5 +35,6 @@ public:
 	void AdjustFrame(Vector3 v);
 
 	void InitVector(vector<vector<vector<Vector3>>>& v);
+
 };
 

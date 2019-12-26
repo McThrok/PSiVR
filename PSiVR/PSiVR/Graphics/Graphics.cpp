@@ -107,26 +107,6 @@ void Graphics::RenderVisualisation()
 	RenderFrame(vbFrame, ibFrame, { 0.8f ,0.8f ,0.8f ,1 });
 	UpdateJellyMesh();
 	RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 });
-
-	//if (guiData->showProbes)
-	//{
-	//	this->deviceContext->PSSetShader(diagonalPixelshader.GetShader(), NULL, 0);
-
-	//	cbColoredObject.data.worldMatrix = Matrix::Identity;
-	//	cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-	//	cbColoredObject.data.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-	//	if (!cbColoredObject.ApplyChanges()) return;
-	//	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
-
-	//	D3D11_MAPPED_SUBRESOURCE resource;
-	//	this->deviceContext->Map(vbProbes.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-	//	memcpy(resource.pData, simulation->probes.data(), simulation->probes.size() * sizeof(VertexPN));
-	//	this->deviceContext->Unmap(vbProbes.Get(), 0);
-
-	//	this->deviceContext->IASetVertexBuffers(0, 1, vbProbes.GetAddressOf(), vbProbes.StridePtr(), &offset);
-	//	this->deviceContext->Draw(simulation->probes.size(), 0);
-	//}
 }
 void Graphics::RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color)
 {
