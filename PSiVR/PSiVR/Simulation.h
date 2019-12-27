@@ -42,14 +42,7 @@ public:
 	void Update(float dt);
 	void Update();
 
-	Vector3 GetCPart1(int _i, int _j, int _k);
-	Vector3 GetCPart2(int _i, int _j, int _k);
-	Vector3 GetCPart3(int _i, int _j, int _k);
-	Vector3 GetCPart4(int _i, int _j, int _k);
-	Vector3 GetKPart1(int _i, int _j, int _k);
-	Vector3 GetKPart2(int _i, int _j, int _k);
-	Vector3 GetKPart3(int _i, int _j, int _k);
-	Vector3 GetKPart4(int _i, int _j, int _k);
+	Vector3 GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta);
 	float GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k);
 
 	void AdjustFrame(Vector3 v);
