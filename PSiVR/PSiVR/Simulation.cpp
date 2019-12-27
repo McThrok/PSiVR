@@ -4,8 +4,9 @@ void Simulation::Init()
 {
 	m = 1;
 	c = 10;
-	kk = 1;
-	l0 = 1;
+	cFrame = 10;
+	kk = 10;
+	l0 = 2.0f/3;
 
 	time = 0;
 	simulationSpeed = 1;
@@ -63,45 +64,6 @@ void Simulation::AdjustFrame(Vector3 v)
 
 void Simulation::Update()
 {
-	//int j = 0, k = 0, i = 0;
-
-	////for (int i = 0; i < 4; i++)
-	//for (int k = 0; k < 4; k++)
-	//{
-	//	vk1[i][j][k] = delta_time * (-c * GetPart(i, j, k, p, p, 0, true) - kk * GetPart(i, j, k, v, v, 0, false)) / m;
-	//	pk1[i][j][k] = delta_time * v[i][j][k];
-	//}
-
-	////for (int i = 0; i < 4; i++)
-	//for (int k = 0; k < 4; k++)
-	//{
-	//	vk2[i][j][k] = delta_time * (-c * GetPart(i, j, k, p, pk1, 0.5f, true) - kk * GetPart(i, j, k, v, vk1, 0.5f, false)) / m;
-	//	pk2[i][j][k] = delta_time * (v[i][j][k] + vk1[i][j][k] * 0.5f);
-	//}
-
-	////for (int i = 0; i < 4; i++)
-	//for (int k = 0; k < 4; k++)
-	//{
-	//	vk3[i][j][k] = delta_time * (-c * GetPart(i, j, k, p, pk2, 0.5f, true) - kk * GetPart(i, j, k, v, vk2, 0.5f, false)) / m;
-	//	pk3[i][j][k] = delta_time * (v[i][j][k] + vk2[i][j][k] * 0.5f);
-	//}
-	//
-	////for (int i = 0; i < 4; i++)
-	//for (int k = 0; k < 4; k++)
-	//{
-	//	vk4[i][j][k] = delta_time * (-c * GetPart(i, j, k, p, pk3, 1, true) - kk * GetPart(i, j, k, v, vk3, 1, false)) / m;
-	//	pk4[i][j][k] = delta_time * (v[i][j][k] + vk3[i][j][k]);
-	//}
-
-	////for (int i = 0; i < 4; i++)
-	//for (int k = 0; k < 4; k++)
-	//{
-	//	v[i][j][k] += (vk1[i][j][k] + 2 * vk2[i][j][k] + 2 * vk3[i][j][k] + vk4[i][j][k]) / 6;
-	//	p[i][j][k] += (pk1[i][j][k] + 2 * pk2[i][j][k] + 2 * pk3[i][j][k] + pk4[i][j][k]) / 6;
-	//}
-	//return;
-
-	////------------------------------------------------------
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			for (int k = 0; k < 4; k++)
@@ -109,6 +71,11 @@ void Simulation::Update()
 				vk1[i][j][k] = delta_time * (-c * GetPart(i, j, k, p, p, 0, true) - kk * GetPart(i, j, k, v, v, 0, false)) / m;
 				pk1[i][j][k] = delta_time * v[i][j][k];
 			}
+
+	for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
+			for (int k = 0; k < 2; k++)
+				vk1[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, p, 0) - kk * GetPartFrame(i, j, k, v, v, 0)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -118,6 +85,11 @@ void Simulation::Update()
 				pk2[i][j][k] = delta_time * (v[i][j][k] + vk1[i][j][k] * 0.5f);
 			}
 
+	for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
+			for (int k = 0; k < 2; k++)
+				vk2[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk1, 0.5f) - kk * GetPartFrame(i, j, k, v, vk1, 0.5f)) / m;
+
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			for (int k = 0; k < 4; k++)
@@ -126,6 +98,11 @@ void Simulation::Update()
 				pk3[i][j][k] = delta_time * (v[i][j][k] + vk2[i][j][k] * 0.5f);
 			}
 
+	for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
+			for (int k = 0; k < 2; k++)
+				vk3[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk2, 0.5f) - kk * GetPartFrame(i, j, k, v, vk2, 0.5f)) / m;
+
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			for (int k = 0; k < 4; k++)
@@ -133,6 +110,11 @@ void Simulation::Update()
 				vk4[i][j][k] = delta_time * (-c * GetPart(i, j, k, p, pk3, 1, true) - kk * GetPart(i, j, k, v, vk3, 1, false)) / m;
 				pk4[i][j][k] = delta_time * (v[i][j][k] + vk3[i][j][k]);
 			}
+
+	for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
+			for (int k = 0; k < 2; k++)
+				vk4[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk3, 1) - kk * GetPartFrame(i, j, k, v, vk3, 1)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -155,8 +137,6 @@ Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 
 				if (i != _i && j != _j && k != _k) continue;
 				if (i < 0 || j < 0 || k < 0 || i > 3 || j > 3 || k > 3) continue;
 
-				//if (k != _k || j != _j) continue;
-
 				Vector3 vec = (t[_i][_j][_k] + ta * tk[_i][_j][_k]) - (t[i][j][k] + ta * tk[i][j][k]);
 				if (useL)
 				{
@@ -166,15 +146,15 @@ Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 
 					tmp.Normalize();
 					tmp *= -l0 * sqrt(GetDiff(i, j, k, _i, _j, _k));
 					vec += tmp;
-
-					//float length = vec.Length() - l0 * sqrt(GetDiff(i, j, k, _i, _j, _k));
-					//vec.Normalize();
-					//vec *= length;
 				}
 				sum += vec;
 			}
 
 	return sum;
+}
+Vector3 Simulation::GetPartFrame(int i, int j, int k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta)
+{
+	return (t[3 * i][3 * j][3 * k] + ta * tk[i][j][k]) - f[i][j][k];
 }
 float Simulation::GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k)
 {

@@ -35,7 +35,7 @@ public:
 
 	float cubeSize;
 	float simulationSpeed;
-	float m, c, kk, l0;
+	float m, c, cFrame, kk, l0;
 
 	void Init();
 	void Reset();
@@ -43,6 +43,7 @@ public:
 	void Update();
 
 	Vector3 GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta, bool useL);
+	Vector3 GetPartFrame(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta);
 	float GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k);
 
 	void AdjustFrame(Vector3 v);
