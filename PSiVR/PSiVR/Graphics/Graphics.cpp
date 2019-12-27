@@ -290,7 +290,7 @@ void Graphics::UpdateFrameMesh()
 	this->deviceContext->Map(vbFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 	vector<VertexPN> verts;
 	vector<int> inds;
-	GetFrame(simulation->f[0][0][0], simulation->f[3][3][3], verts, inds);
+	GetFrame(simulation->f[0][0][0], simulation->f[1][1][1], verts, inds);
 	memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexPN));
 	this->deviceContext->Unmap(vbFrame.Get(), 0);
 }
@@ -349,7 +349,7 @@ void Graphics::InitFrame()
 {
 	vector<VertexPN> vertices;
 	vector<int> indices;
-	GetFrame(simulation->f[0][0][0], simulation->f[3][3][3], vertices, indices);
+	GetFrame(simulation->f[0][0][0], simulation->f[1][1][1], vertices, indices);
 
 	HRESULT hr = this->vbFrame.Initialize(this->device.Get(), vertices.data(), vertices.size(), true);
 	if (FAILED(hr))

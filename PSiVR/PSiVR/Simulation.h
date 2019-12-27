@@ -15,7 +15,7 @@ class Simulation
 public:
 
 	Vector3 lb, ub;
-	Vector3 f[4][4][4];
+	Vector3 f[2][2][2];
 
 	Vector3 p[4][4][4];
 	Vector3 pk1[4][4][4];

@@ -5,7 +5,7 @@ void Simulation::Init()
 	m = 1;
 	c = 10;
 	kk = 1;
-	l0 = 1.3;
+	l0 = 1;
 
 	time = 0;
 	simulationSpeed = 1;
@@ -29,10 +29,13 @@ void Simulation::Reset()
 				p[i][j][k] = Vector3(i, j, k) * cubeSize / 3;
 				p[i][j][k] -= Vector3(1, 1, 1) * (cubeSize / 2);
 
-				f[i][j][k] = p[i][j][k];
-
 				v[i][j][k] = Vector3(0, 0, 0);
 			}
+
+	for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
+			for (int k = 0; k < 2; k++)
+				f[i][j][k] = p[3 * i][3 * j][3 * k];
 }
 
 void Simulation::Update(float dt)
@@ -52,9 +55,9 @@ void Simulation::Update(float dt)
 
 void Simulation::AdjustFrame(Vector3 v)
 {
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			for (int k = 0; k < 4; k++)
+	for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
+			for (int k = 0; k < 2; k++)
 				f[i][j][k] += v;
 }
 
@@ -161,7 +164,7 @@ Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 
 					//if (vec.Length() < 0.0001)
 					//	vec = { 1,0,0 };
 					tmp.Normalize();
-					tmp *= -l0 *sqrt(GetDiff(i, j, k, _i, _j, _k));
+					tmp *= -l0 * sqrt(GetDiff(i, j, k, _i, _j, _k));
 					vec += tmp;
 
 					//float length = vec.Length() - l0 * sqrt(GetDiff(i, j, k, _i, _j, _k));
