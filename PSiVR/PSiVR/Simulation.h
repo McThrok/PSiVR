@@ -35,7 +35,7 @@ public:
 
 	float cubeSize;
 	float simulationSpeed;
-	float m, c, k, l0;
+	float m, c, kk, l0;
 
 	void Init();
 	void Reset();
