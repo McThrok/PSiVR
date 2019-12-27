@@ -42,7 +42,7 @@ public:
 	void Update(float dt);
 	void Update();
 
-	Vector3 GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta);
+	Vector3 GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta, bool useL);
 	float GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k);
 
 	void AdjustFrame(Vector3 v);
