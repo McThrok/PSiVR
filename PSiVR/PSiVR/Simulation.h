@@ -15,10 +15,19 @@ class Simulation
 public:
 
 	Vector3 lb, ub;
-	vector<vector<vector<Vector3>>> f;
+	Vector3 f[4][4][4];
 
-	vector<vector<vector<Vector3>>> p, pPrev, pPrevPrev;
-	vector<vector<vector<Vector3>>> v, vPrev, vPrevPrev;
+	Vector3 p[4][4][4];
+	Vector3 pk1[4][4][4];
+	Vector3 pk2[4][4][4];
+	Vector3 pk3[4][4][4];
+	Vector3 pk4[4][4][4];
+
+	Vector3 v[4][4][4];
+	Vector3 vk1[4][4][4];
+	Vector3 vk2[4][4][4];
+	Vector3 vk3[4][4][4];
+	Vector3 vk4[4][4][4];
 
 	float delta_time;
 	float time;
@@ -26,15 +35,24 @@ public:
 
 	float cubeSize;
 	float simulationSpeed;
-	float m, c, k;
+	float m, c, k, l0;
 
 	void Init();
 	void Reset();
 	void Update(float dt);
 	void Update();
-	void AdjustFrame(Vector3 v);
 
-	void InitVector(vector<vector<vector<Vector3>>>& v);
+	Vector3 GetCPart1(int _i, int _j, int _k);
+	Vector3 GetCPart2(int _i, int _j, int _k);
+	Vector3 GetCPart3(int _i, int _j, int _k);
+	Vector3 GetCPart4(int _i, int _j, int _k);
+	Vector3 GetKPart1(int _i, int _j, int _k);
+	Vector3 GetKPart2(int _i, int _j, int _k);
+	Vector3 GetKPart3(int _i, int _j, int _k);
+	Vector3 GetKPart4(int _i, int _j, int _k);
+	float GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k);
+
+	void AdjustFrame(Vector3 v);
 
 };
 
