@@ -77,6 +77,11 @@ void Graphics::RenderMainPanel() {
 	}
 
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.0005f, 0.05f, "%.4f");
+	ImGui::SliderFloat("m", &simulation->m, 0.1f, 10.0f);
+	ImGui::SliderFloat("c", &simulation->c, 0.01f, 100.0f);
+	ImGui::SliderFloat("cFrame", &simulation->cFrame, 0.01f, 100.0f);
+	ImGui::SliderFloat("kk", &simulation->kk, 0.01f, 100.0f);
+	ImGui::SliderFloat("kkFrame", &simulation->kkFrame, 0.01f, 100.0f);
 
 	ImGui::Checkbox("show cube", &guiData->showCube);
 

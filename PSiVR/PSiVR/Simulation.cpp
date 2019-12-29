@@ -6,7 +6,8 @@ void Simulation::Init()
 	c = 10;
 	cFrame = 10;
 	kk = 10;
-	l0 = 2.0f/3;
+	kkFrame = 10;
+	//l0 = 2.0f/3;
 
 	time = 0;
 	simulationSpeed = 1;
@@ -75,7 +76,7 @@ void Simulation::Update()
 	for (int i = 0; i < 2; i++)
 		for (int j = 0; j < 2; j++)
 			for (int k = 0; k < 2; k++)
-				vk1[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, p, 0) - kk * GetPartFrame(i, j, k, v, v, 0)) / m;
+				vk1[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, p, 0, true) - kkFrame * GetPartFrame(i, j, k, v, v, 0, false)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -88,7 +89,7 @@ void Simulation::Update()
 	for (int i = 0; i < 2; i++)
 		for (int j = 0; j < 2; j++)
 			for (int k = 0; k < 2; k++)
-				vk2[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk1, 0.5f) - kk * GetPartFrame(i, j, k, v, vk1, 0.5f)) / m;
+				vk2[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk1, 0.5f, true) - kkFrame * GetPartFrame(i, j, k, v, vk1, 0.5f, false)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -101,7 +102,7 @@ void Simulation::Update()
 	for (int i = 0; i < 2; i++)
 		for (int j = 0; j < 2; j++)
 			for (int k = 0; k < 2; k++)
-				vk3[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk2, 0.5f) - kk * GetPartFrame(i, j, k, v, vk2, 0.5f)) / m;
+				vk3[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk2, 0.5f, true) - kkFrame * GetPartFrame(i, j, k, v, vk2, 0.5f,false)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -114,7 +115,7 @@ void Simulation::Update()
 	for (int i = 0; i < 2; i++)
 		for (int j = 0; j < 2; j++)
 			for (int k = 0; k < 2; k++)
-				vk4[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk3, 1) - kk * GetPartFrame(i, j, k, v, vk3, 1)) / m;
+				vk4[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk3, 1,true) - kkFrame * GetPartFrame(i, j, k, v, vk3, 1, false)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -128,6 +129,7 @@ void Simulation::Update()
 Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta, bool useL)
 {
 	Vector3 sum = Vector3::Zero;
+	float l0 = cubeSize / 3;
 
 	for (int i = _i - 1; i <= _i + 1; i++)
 		for (int j = _j - 1; j <= _j + 1; j++)
@@ -152,9 +154,9 @@ Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 
 
 	return sum;
 }
-Vector3 Simulation::GetPartFrame(int i, int j, int k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta)
+Vector3 Simulation::GetPartFrame(int i, int j, int k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta, bool p)
 {
-	return (t[3 * i][3 * j][3 * k] + ta * tk[i][j][k]) - f[i][j][k];
+		return (t[3 * i][3 * j][3 * k] + ta * tk[3 * i][3 * j][3 * k]) - (p? f[i][j][k]: Vector3::Zero );
 }
 float Simulation::GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k)
 {
