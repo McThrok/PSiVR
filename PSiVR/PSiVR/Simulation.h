@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <SimpleMath.h>
 #include "Graphics/Vertex.h"
+#include <random>
 
 using namespace std;
 using namespace DirectX;
@@ -35,8 +36,10 @@ public:
 
 	float cubeSize;
 	float simulationSpeed;
-	float m, c, cFrame, kk, kkFrame, mi;
+	float m, c, cFrame, kk, kkFrame, mi, randomFactor;
 	bool elastic, reduceAll;
+
+	mt19937 gen{ std::random_device{}() };
 
 	void Init();
 	void Reset();

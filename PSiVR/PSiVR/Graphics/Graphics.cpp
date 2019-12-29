@@ -73,15 +73,15 @@ void Graphics::RenderMainPanel() {
 
 	ImGui::SameLine();
 	if (ImGui::Button("Reset")) {
-		simulation->Reset();
+		simulation->Reset();	
 	}
 
 	ImGui::SliderFloat("delta time", &simulation->delta_time, 0.0005f, 0.05f, "%.4f");
 	ImGui::SliderFloat("m", &simulation->m, 0.1f, 10.0f);
 	ImGui::SliderFloat("c", &simulation->c, 0.01f, 100.0f);
 	ImGui::SliderFloat("k", &simulation->kk, 0.01f, 100.0f);
-	ImGui::SliderFloat("c Frame", &simulation->cFrame, 0.01f, 100.0f);
-	ImGui::SliderFloat("k Frame", &simulation->kkFrame, 0.01f, 100.0f);
+	ImGui::SliderFloat("c frame", &simulation->cFrame, 0.01f, 100.0f);
+	ImGui::SliderFloat("k frame", &simulation->kkFrame, 0.01f, 100.0f);
 
 	ImGui::Separator();
 
@@ -94,9 +94,8 @@ void Graphics::RenderMainPanel() {
 	ImGui::Checkbox("show cube", &guiData->showCube);
 
 	ImGui::Separator();
-	bool update = false;
-	if (ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.2, 2)) update = true;
-	if (update) simulation->Reset();
+	ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.2, 2);
+	ImGui::SliderFloat("random factor", &simulation->randomFactor, 0.2, 2);
 	ImGui::Separator();
 
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);

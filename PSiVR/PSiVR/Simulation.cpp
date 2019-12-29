@@ -10,6 +10,7 @@ void Simulation::Init()
 	mi = 0.2;
 	elastic = true;
 	reduceAll = true;
+	randomFactor = 0;
 
 	time = 0;
 	simulationSpeed = 1;
@@ -33,7 +34,9 @@ void Simulation::Reset()
 				p[i][j][k] = Vector3(i, j, k) * cubeSize / 3;
 				p[i][j][k] -= Vector3(1, 1, 1) * (cubeSize / 2);
 
-				v[i][j][k] = Vector3(0, 0, 0);
+				v[i][j][k] = Vector3(uniform_real_distribution<float>{-randomFactor, randomFactor}(gen)
+					, uniform_real_distribution<float>{-randomFactor, randomFactor}(gen)
+					, uniform_real_distribution<float>{-randomFactor, randomFactor}(gen));
 			}
 
 	for (int i = 0; i < 2; i++)
