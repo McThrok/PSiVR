@@ -102,7 +102,7 @@ void Simulation::Update()
 	for (int i = 0; i < 2; i++)
 		for (int j = 0; j < 2; j++)
 			for (int k = 0; k < 2; k++)
-				vk3[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk2, 0.5f, true) - kkFrame * GetPartFrame(i, j, k, v, vk2, 0.5f,false)) / m;
+				vk3[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk2, 0.5f, true) - kkFrame * GetPartFrame(i, j, k, v, vk2, 0.5f, false)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -115,7 +115,7 @@ void Simulation::Update()
 	for (int i = 0; i < 2; i++)
 		for (int j = 0; j < 2; j++)
 			for (int k = 0; k < 2; k++)
-				vk4[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk3, 1,true) - kkFrame * GetPartFrame(i, j, k, v, vk3, 1, false)) / m;
+				vk4[3 * i][3 * j][3 * k] += delta_time * (-cFrame * GetPartFrame(i, j, k, p, pk3, 1, true) - kkFrame * GetPartFrame(i, j, k, v, vk3, 1, false)) / m;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -124,6 +124,8 @@ void Simulation::Update()
 				v[i][j][k] += (vk1[i][j][k] + 2 * vk2[i][j][k] + 2 * vk3[i][j][k] + vk4[i][j][k]) / 6;
 				p[i][j][k] += (pk1[i][j][k] + 2 * pk2[i][j][k] + 2 * pk3[i][j][k] + pk4[i][j][k]) / 6;
 			}
+
+	ApplyCollisions();
 }
 
 Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta, bool useL)
@@ -156,8 +158,53 @@ Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 
 }
 Vector3 Simulation::GetPartFrame(int i, int j, int k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta, bool p)
 {
-		return (t[3 * i][3 * j][3 * k] + ta * tk[3 * i][3 * j][3 * k]) - (p? f[i][j][k]: Vector3::Zero );
+	return (t[3 * i][3 * j][3 * k] + ta * tk[3 * i][3 * j][3 * k]) - (p ? f[i][j][k] : Vector3::Zero);
 }
+void Simulation::ApplyCollisions()
+{
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			for (int k = 0; k < 4; k++)
+			{
+				Vector3& pp = p[i][j][k];
+				Vector3& vv = v[i][j][k];
+
+				if (lb.x > pp.x)
+				{
+					pp.x = 2 * lb.x - pp.x;
+					vv.x *= -1;
+				}
+				else if (ub.x < pp.x)
+				{
+					pp.x = 2 * ub.x - pp.x;
+					vv.x *= -1;
+				}
+
+				if (lb.y > pp.y)
+				{
+					pp.y = 2 * lb.y - pp.y;
+					vv.y *= -1;
+				}
+				else if (ub.y < pp.y)
+				{
+					pp.y = 2 * ub.y - pp.y;
+					vv.y *= -1;
+				}
+
+				if (lb.z > pp.z)
+				{
+					pp.z = 2 * lb.z - pp.z;
+					vv.z *= -1;
+				}
+				else if (ub.z < pp.z)
+				{
+					pp.z = 2 * ub.z - pp.z;
+					vv.z *= -1;
+				}
+
+			}
+}
+
 float Simulation::GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k)
 {
 	return abs(i - _i) + abs(j - _j) + abs(k - _k);
