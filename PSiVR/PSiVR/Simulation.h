@@ -35,7 +35,8 @@ public:
 
 	float cubeSize;
 	float simulationSpeed;
-	float m, c, cFrame, kk, kkFrame;
+	float m, c, cFrame, kk, kkFrame, mi;
+	bool elastic, reduceAll;
 
 	void Init();
 	void Reset();

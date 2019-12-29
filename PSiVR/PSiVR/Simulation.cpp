@@ -7,7 +7,9 @@ void Simulation::Init()
 	cFrame = 10;
 	kk = 10;
 	kkFrame = 10;
-	//l0 = 2.0f/3;
+	mi = 0.2;
+	elastic = true;
+	reduceAll = true;
 
 	time = 0;
 	simulationSpeed = 1;
@@ -169,39 +171,52 @@ void Simulation::ApplyCollisions()
 				Vector3& pp = p[i][j][k];
 				Vector3& vv = v[i][j][k];
 
-				if (lb.x > pp.x)
+				if (ub.x < pp.x || lb.x > pp.x)
 				{
-					pp.x = 2 * lb.x - pp.x;
 					vv.x *= -1;
+					if (!elastic)
+					{
+						if (reduceAll) vv *= mi;
+						else vv.x *= mi;
+					}
 				}
+
+				if (lb.x > pp.x)
+					pp.x = 2 * lb.x - pp.x;
 				else if (ub.x < pp.x)
-				{
 					pp.x = 2 * ub.x - pp.x;
-					vv.x *= -1;
+
+
+				if (ub.y < pp.y || lb.y > pp.y)
+				{
+					vv.y *= -1;
+					if (!elastic)
+					{
+						if (reduceAll) vv *= mi;
+						else vv.y *= mi;
+					}
 				}
 
 				if (lb.y > pp.y)
-				{
 					pp.y = 2 * lb.y - pp.y;
-					vv.y *= -1;
-				}
 				else if (ub.y < pp.y)
-				{
 					pp.y = 2 * ub.y - pp.y;
-					vv.y *= -1;
+
+
+				if (ub.z < pp.z || lb.z > pp.z)
+				{
+					vv.z *= -1;
+					if (!elastic)
+					{
+						if (reduceAll) vv *= mi;
+						else vv.z *= mi;
+					}
 				}
 
 				if (lb.z > pp.z)
-				{
 					pp.z = 2 * lb.z - pp.z;
-					vv.z *= -1;
-				}
 				else if (ub.z < pp.z)
-				{
 					pp.z = 2 * ub.z - pp.z;
-					vv.z *= -1;
-				}
-
 			}
 }
 
