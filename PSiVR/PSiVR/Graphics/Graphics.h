@@ -40,12 +40,13 @@ private:
 	void InitFrame();
 	void InitJelly();
 	void InitConstantBuffers();
+	
 
 	void InitGui(HWND hwnd);
 	void RendeGui();
 	void RenderMainPanel();
 	void RenderVisualisation();
-	void RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color);
+	void RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color, Matrix matrix);
 	
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;

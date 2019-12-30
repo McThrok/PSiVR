@@ -12,6 +12,7 @@ void Simulation::Init()
 	reduceAll = true;
 	randomFactor = 0;
 
+
 	time = 0;
 	simulationSpeed = 1;
 	cubeSize = 2;
@@ -27,6 +28,9 @@ void Simulation::Init()
 
 void Simulation::Reset()
 {
+	frameRotation = { 0,0,0 };
+	framePosition = { 0,0,0 };
+
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			for (int k = 0; k < 4; k++)
@@ -62,10 +66,11 @@ void Simulation::Update(float dt)
 
 void Simulation::AdjustFrame(Vector3 v)
 {
-	for (int i = 0; i < 2; i++)
-		for (int j = 0; j < 2; j++)
-			for (int k = 0; k < 2; k++)
-				f[i][j][k] += v;
+	framePosition += v;
+	//for (int i = 0; i < 2; i++)
+	//	for (int j = 0; j < 2; j++)
+	//		for (int k = 0; k < 2; k++)
+	//			f[i][j][k] += v;
 }
 
 void Simulation::Update()
@@ -163,7 +168,7 @@ Vector3 Simulation::GetPart(int _i, int _j, int _k, Vector3 t[4][4][4], Vector3 
 }
 Vector3 Simulation::GetPartFrame(int i, int j, int k, Vector3 t[4][4][4], Vector3 tk[4][4][4], float ta, bool p)
 {
-	return (t[3 * i][3 * j][3 * k] + ta * tk[3 * i][3 * j][3 * k]) - (p ? f[i][j][k] : Vector3::Zero);
+	return (t[3 * i][3 * j][3 * k] + ta * tk[3 * i][3 * j][3 * k]) - (p ? (Vector3)XMVector3TransformCoord(f[i][j][k], GetFrameMatrix()) : Vector3::Zero);
 }
 void Simulation::ApplyCollisions()
 {
@@ -226,4 +231,14 @@ void Simulation::ApplyCollisions()
 float Simulation::GetDiff(int i, int  j, int  k, int  _i, int  _j, int _k)
 {
 	return abs(i - _i) + abs(j - _j) + abs(k - _k);
+}
+
+Matrix Simulation::GetFrameMatrix()
+{
+	Matrix m = Matrix::Identity;
+	m *= Matrix::CreateRotationX(XMConvertToRadians( frameRotation.x));
+	m *= Matrix::CreateRotationY(XMConvertToRadians(frameRotation.y));
+	m *= Matrix::CreateRotationZ(XMConvertToRadians(frameRotation.z));
+	m *= Matrix::CreateTranslation(framePosition);
+	return m;
 }

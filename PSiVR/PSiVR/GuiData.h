@@ -1,5 +1,7 @@
 #pragma once
 class GuiData {
 public:
-	bool showCube = true;
+	bool showJelly = true;
+	bool showFrame = true;
+	bool showBox = true;
 };

@@ -84,20 +84,24 @@ void Graphics::RenderMainPanel() {
 	ImGui::SliderFloat("k frame", &simulation->kkFrame, 0.01f, 100.0f);
 
 	ImGui::Separator();
+	ImGui::SliderFloat3("frame position", &simulation->framePosition.x, -5, 5);
+	ImGui::SliderFloat3("frame rotation", &simulation->frameRotation.x, -180, 180);
 
+	ImGui::Separator();
 	ImGui::Checkbox("elastic", &simulation->elastic);
 	ImGui::Checkbox("reduce all", & simulation->reduceAll);
 	ImGui::SliderFloat("mi", &simulation->mi, 0.00f, 1.0f);
 
 	ImGui::Separator();
-
-	ImGui::Checkbox("show cube", &guiData->showCube);
+	ImGui::Checkbox("show jelly", &guiData->showJelly);
+	ImGui::Checkbox("show frame", &guiData->showFrame);
+	ImGui::Checkbox("show box", &guiData->showBox);
 
 	ImGui::Separator();
 	ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.2, 2);
 	ImGui::SliderFloat("random factor", &simulation->randomFactor, 0.2, 2);
-	ImGui::Separator();
 
+	ImGui::Separator();
 	ImGui::SliderFloat("simulation speed", &simulation->simulationSpeed, 0.1, 10);
 
 	ImGui::End();
@@ -115,16 +119,16 @@ void Graphics::RenderVisualisation()
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
 	this->deviceContext->PSSetConstantBuffers(0, 1, this->cbColoredObject.GetAddressOf());
 
-	RenderFrame(vbBox, ibBox, { 0.8f ,0.8f ,0.8f ,1 });
-	RenderFrame(vbFrame, ibFrame, { 0.8f ,0.8f ,0.8f ,1 });
+	if(guiData->showBox) RenderFrame(vbBox, ibBox, { 0.8f ,0.8f ,0.8f ,1 }, Matrix::Identity);
+	if (guiData->showFrame)RenderFrame(vbFrame, ibFrame, { 0.8f ,0.8f ,0.8f ,1 }, simulation->GetFrameMatrix());
 	UpdateJellyMesh();
-	RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 });
+	if (guiData->showJelly)RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 },Matrix::Identity);
 }
-void Graphics::RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color)
+void Graphics::RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color,Matrix matrix)
 {
 	UINT offset = 0;
 
-	cbColoredObject.data.worldMatrix = Matrix::Identity;
+	cbColoredObject.data.worldMatrix =matrix;
 	cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
 	cbColoredObject.data.color = color;
 

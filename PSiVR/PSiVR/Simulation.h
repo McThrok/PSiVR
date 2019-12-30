@@ -30,6 +30,9 @@ public:
 	Vector3 vk3[4][4][4];
 	Vector3 vk4[4][4][4];
 
+	Vector3 frameRotation;
+	Vector3 framePosition;
+
 	float delta_time;
 	float time;
 	bool paused;
@@ -52,6 +55,6 @@ public:
 	void ApplyCollisions();
 
 	void AdjustFrame(Vector3 v);
-
+	Matrix GetFrameMatrix();
 };
 
