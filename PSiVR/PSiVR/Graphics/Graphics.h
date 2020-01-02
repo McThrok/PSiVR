@@ -27,7 +27,7 @@ public:
 	void RenderFrame();
 	Camera camera;
 	Simulation* simulation;
-	GuiData * guiData;
+	GuiData* guiData;
 
 	void UpdateFrameMesh();
 	void UpdateJellyMesh();
@@ -35,18 +35,26 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
-	void GetFrame(Vector3 lb, Vector3 ub,  vector<VertexP>& vertices, vector<int>& indices);
+	void GetFrame(Vector3 lb, Vector3 ub, vector<VertexP>& vertices, vector<int>& indices);
 	void InitBox();
 	void InitFrame();
 	void InitJelly();
+	void InitJellySides();
 	void InitConstantBuffers();
 	void InitUAV();
+	void InitDeformation();
+	void UpdateJellySides();
 
 	void InitGui(HWND hwnd);
 	void RendeGui();
 	void RenderMainPanel();
 	void RenderVisualisation();
 	void RenderFrame(VertexBuffer<VertexP>& vb, IndexBuffer& ib, Vector4 color, Matrix matrix);
+	void RenderShading();
+
+	ComPtr<ID3D11Texture3D> tex3D;
+	ComPtr<ID3D11ShaderResourceView> texSRV;
+	ComPtr<ID3D11SamplerState> sampler;
 
 	ComPtr<ID3D11Buffer> uav_buffer;
 	ComPtr<ID3D11UnorderedAccessView> uav_view;
@@ -64,7 +72,9 @@ private:
 	ConstantBuffer<LightBuffer> cbLight;
 
 	VertexBuffer<VertexP> vbBox, vbJelly, vbFrame;
-	IndexBuffer ibBox, ibJelly, ibFrame, ibJellySides[6];
+	IndexBuffer ibBox, ibJelly, ibFrame;
+	VertexBuffer<VertexPT> vbJellySides[6];
+	IndexBuffer ibJellySides;
 
 	ComPtr<ID3D11DepthStencilView> depthStencilView;
 	ComPtr<ID3D11Texture2D> depthStencilBuffer;

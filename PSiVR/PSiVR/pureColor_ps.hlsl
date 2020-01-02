@@ -8,7 +8,6 @@ cbuffer perObjectBuffer : register(b0)
 struct PS_INPUT
 {
 	float4 inPosition : SV_POSITION;
-	float3 inNormal : NORMAL;
 	float3 inWorldPos : WORLD_POSITION;
 };
 
