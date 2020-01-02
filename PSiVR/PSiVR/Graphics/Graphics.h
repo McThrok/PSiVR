@@ -18,6 +18,7 @@
 #include "..\\GuiData.h"
 
 using namespace std;
+using Microsoft::WRL::ComPtr;
 
 class Graphics
 {
@@ -40,19 +41,21 @@ private:
 	void InitFrame();
 	void InitJelly();
 	void InitConstantBuffers();
-	
+	void InitUAV();
 
 	void InitGui(HWND hwnd);
 	void RendeGui();
 	void RenderMainPanel();
 	void RenderVisualisation();
 	void RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color, Matrix matrix);
-	
 
-	Microsoft::WRL::ComPtr<ID3D11Device> device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
+	ComPtr<ID3D11Buffer> uav_buffer;
+	ComPtr<ID3D11UnorderedAccessView> uav_view;
+
+	ComPtr<ID3D11Device> device;
+	ComPtr<ID3D11DeviceContext> deviceContext;
+	ComPtr<IDXGISwapChain> swapchain;
+	ComPtr<ID3D11RenderTargetView> renderTargetView;
 
 	VertexShader vertexshader;
 	PixelShader pixelshader;
@@ -63,12 +66,12 @@ private:
 
 
 	VertexBuffer<VertexPN> vbBox, vbJelly, vbFrame;
-	IndexBuffer ibBox, ibJelly, ibFrame;
+	IndexBuffer ibBox, ibJelly, ibFrame, ibJellySides[6];
 
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
+	ComPtr<ID3D11DepthStencilView> depthStencilView;
+	ComPtr<ID3D11Texture2D> depthStencilBuffer;
+	ComPtr<ID3D11DepthStencilState> depthStencilState;
+	ComPtr<ID3D11RasterizerState> rasterizerState;
 
 	int windowWidth = 0;
 	int windowHeight = 0;

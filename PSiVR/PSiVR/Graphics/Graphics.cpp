@@ -29,7 +29,7 @@ void Graphics::RenderFrame()
 	this->deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor);
 	this->deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	RenderVisualisation();
+	//RenderVisualisation();
 	RendeGui();
 
 	this->swapchain->Present(0, NULL);
@@ -280,15 +280,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 }
 bool Graphics::InitializeShaders()
 {
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	UINT numElements = ARRAYSIZE(layout);
-
-	if (!vertexshader.Initialize(this->device, L"my_vs.cso", layout, numElements))
+	if (!vertexshader.Initialize(this->device, L"my_vs.cso", VertexPN::layout, ARRAYSIZE(VertexPN::layout)))
 		return false;
 
 	if (!pixelshader.Initialize(this->device, L"my_ps.cso"))
@@ -427,6 +419,29 @@ void Graphics::InitConstantBuffers()
 	if (FAILED(hr))
 		ErrorLogger::Log(hr, "Failed to initialize constant buffer.");
 }
+void Graphics::InitUAV()
+{
+	D3D11_BUFFER_DESC buff_desc;
+	memset(&buff_desc, 0, sizeof(buff_desc));
+
+	buff_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	buff_desc.ByteWidth = 16 * sizeof(Vector3);
+	buff_desc.CPUAccessFlags = 0;
+	buff_desc.MiscFlags = 0;
+	buff_desc.StructureByteStride = sizeof(Vector3);
+	buff_desc.Usage = D3D11_USAGE_DYNAMIC;
+	buff_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	device->CreateBuffer(&buff_desc, nullptr, uav_buffer.GetAddressOf());
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+	uavDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.NumElements = 16;
+
+	device->CreateUnorderedAccessView(uav_buffer.Get(), &uavDesc, uav_view.GetAddressOf());
+}
 bool Graphics::InitializeScene()
 {
 	InitBox();
@@ -434,6 +449,8 @@ bool Graphics::InitializeScene()
 	InitJelly();
 
 	InitConstantBuffers();
+
+	InitUAV();
 
 	camera.SetPosition(0, -5.0f, 0);
 	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
