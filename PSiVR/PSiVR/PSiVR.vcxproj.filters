@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Geometry">
       <UniqueIdentifier>{e4b773c9-7eb5-450b-ac56-c3db365b51cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{8c2a3285-f0d0-4500-8b91-f29d3f4db616}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -229,14 +232,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="my_vs.hlsl">
-      <Filter>Resource Files</Filter>
+    <FxCompile Include="Resources\Shaders\pureColor_ps.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="my_ps.hlsl">
-      <Filter>Resource Files</Filter>
+    <FxCompile Include="Resources\Shaders\deformation_vs.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="pureColor_ps.hlsl">
-      <Filter>Resource Files</Filter>
+    <FxCompile Include="Resources\Shaders\my_ps.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\my_vs.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

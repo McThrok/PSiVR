@@ -4,6 +4,8 @@
 #include "Vertex.h"
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
+#include <iostream>
+#include <fstream>
 #include <WICTextureLoader.h>
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -44,6 +46,8 @@ private:
 	void InitUAV();
 	void InitDeformation();
 	void UpdateJellySides();
+
+	void LoadBunny();
 
 	void InitGui(HWND hwnd);
 	void RendeGui();

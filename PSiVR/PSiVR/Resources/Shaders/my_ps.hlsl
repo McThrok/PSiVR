@@ -5,7 +5,6 @@ cbuffer perObjectBuffer : register(b0)
 	float4 color;
 };
 
-RWTexture2D<float4> uav1;
 
 struct PS_INPUT
 {

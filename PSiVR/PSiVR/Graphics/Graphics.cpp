@@ -308,13 +308,15 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 }
 bool Graphics::InitializeShaders()
 {
-	if (!vertexshader.Initialize(this->device, L"my_vs.cso", VertexP::layout, ARRAYSIZE(VertexP::layout)))
+	wstring root = L"Resources\Shaders";
+
+	if (!vertexshader.Initialize(this->device, root + L"my_vs.cso", VertexP::layout, ARRAYSIZE(VertexP::layout)))
 		return false;
 
-	if (!pixelshader.Initialize(this->device, L"my_ps.cso"))
+	if (!pixelshader.Initialize(this->device, root + L"my_ps.cso"))
 		return false;
 
-	if (!pureColorPixelshader.Initialize(this->device, L"pureColor_ps.cso"))
+	if (!pureColorPixelshader.Initialize(this->device, root + L"pureColor_ps.cso"))
 		return false;
 
 	return true;
@@ -419,6 +421,14 @@ void Graphics::UpdateJellySides()
 		memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexP));
 		this->deviceContext->Unmap(vbJellySides[4].Get(), 0);
 	}
+}
+
+void Graphics::LoadBunny()
+{
+	ofstream myfile;
+	myfile.open("bunny.obj");
+	myfile << "Writing this to a file.\n";
+	myfile.close();
 }
 
 void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexP>& vertices, vector<int>& indices)
