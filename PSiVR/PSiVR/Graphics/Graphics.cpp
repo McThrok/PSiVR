@@ -1,9 +1,5 @@
 #include "Graphics.h"
 
-Graphics::~Graphics()
-{
-}
-
 bool Graphics::Initialize(HWND hwnd, int width, int height)
 {
 	this->windowWidth = width;
@@ -124,7 +120,7 @@ void Graphics::RenderVisualisation()
 	UpdateJellyMesh();
 	if (guiData->showJelly)RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 },Matrix::Identity);
 }
-void Graphics::RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color,Matrix matrix)
+void Graphics::RenderFrame(VertexBuffer<VertexP>& vb, IndexBuffer& ib, Vector4 color,Matrix matrix)
 {
 	UINT offset = 0;
 
@@ -280,7 +276,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 }
 bool Graphics::InitializeShaders()
 {
-	if (!vertexshader.Initialize(this->device, L"my_vs.cso", VertexPN::layout, ARRAYSIZE(VertexPN::layout)))
+	if (!vertexshader.Initialize(this->device, L"my_vs.cso", VertexP::layout, ARRAYSIZE(VertexP::layout)))
 		return false;
 
 	if (!pixelshader.Initialize(this->device, L"my_ps.cso"))
@@ -296,10 +292,10 @@ void Graphics::UpdateFrameMesh()
 {
 	D3D11_MAPPED_SUBRESOURCE resource;
 	this->deviceContext->Map(vbFrame.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-	vector<VertexPN> verts;
+	vector<VertexP> verts;
 	vector<int> inds;
 	GetFrame(simulation->f[0][0][0], simulation->f[1][1][1], verts, inds);
-	memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexPN));
+	memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexP));
 	this->deviceContext->Unmap(vbFrame.Get(), 0);
 }
 void Graphics::UpdateJellyMesh()
@@ -307,29 +303,29 @@ void Graphics::UpdateJellyMesh()
 	D3D11_MAPPED_SUBRESOURCE resource;
 	this->deviceContext->Map(vbJelly.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 
-	vector<VertexPN> verts;
+	vector<VertexP> verts;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			for (int k = 0; k < 4; k++)
-				verts.push_back(VertexPN(simulation->p[i][j][k], { 0,0,0 }));
+				verts.push_back(VertexP(simulation->p[i][j][k]));
 
-	memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexPN));
+	memcpy(resource.pData, verts.data(), verts.size() * sizeof(VertexP));
 	this->deviceContext->Unmap(vbJelly.Get(), 0);
 }
 
-void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexPN>& vertices, vector<int>& indices)
+void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexP>& vertices, vector<int>& indices)
 {
 	vertices = {
-		VertexPN(lb.x,lb.y,lb.z, 0.0f, 0.0f, 0.0f),
-		VertexPN(ub.x,lb.y,lb.z, 0.0f, 0.0f, 0.0f),
-		VertexPN(lb.x,ub.y,lb.z, 0.0f, 0.0f, 0.0f),
-		VertexPN(ub.x,ub.y,lb.z, 0.0f, 0.0f, 0.0f),
+		VertexP(lb.x,lb.y,lb.z),
+		VertexP(ub.x,lb.y,lb.z),
+		VertexP(lb.x,ub.y,lb.z),
+		VertexP(ub.x,ub.y,lb.z),
 
-		VertexPN(lb.x,lb.y,ub.z, 0.0f, 0.0f, 0.0f),
-		VertexPN(ub.x,lb.y,ub.z, 0.0f, 0.0f, 0.0f),
-		VertexPN(lb.x,ub.y,ub.z, 0.0f, 0.0f, 0.0f),
-		VertexPN(ub.x,ub.y,ub.z, 0.0f, 0.0f, 0.0f),
+		VertexP(lb.x,lb.y,ub.z),
+		VertexP(ub.x,lb.y,ub.z),
+		VertexP(lb.x,ub.y,ub.z),
+		VertexP(ub.x,ub.y,ub.z),
 	};
 
 	indices =
@@ -341,7 +337,7 @@ void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexPN>& vertices, vect
 }
 void Graphics::InitBox()
 {
-	vector<VertexPN> vertices;
+	vector<VertexP> vertices;
 	vector<int> indices;
 	GetFrame(simulation->lb, simulation->ub, vertices, indices);
 
@@ -355,7 +351,7 @@ void Graphics::InitBox()
 }
 void Graphics::InitFrame()
 {
-	vector<VertexPN> vertices;
+	vector<VertexP> vertices;
 	vector<int> indices;
 	GetFrame(simulation->f[0][0][0], simulation->f[1][1][1], vertices, indices);
 
@@ -369,13 +365,13 @@ void Graphics::InitFrame()
 }
 void Graphics::InitJelly()
 {
-	vector<VertexPN> vertices;
+	vector<VertexP> vertices;
 	vector<int> indices;
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			for (int k = 0; k < 4; k++)
-				vertices.push_back(VertexPN(simulation->p[i][j][k], { 0,0,0 }));
+				vertices.push_back(VertexP(simulation->p[i][j][k]));
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)

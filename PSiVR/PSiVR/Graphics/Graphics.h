@@ -23,7 +23,6 @@ using Microsoft::WRL::ComPtr;
 class Graphics
 {
 public:
-	~Graphics();
 	bool Initialize(HWND hwnd, int width, int height);
 	void RenderFrame();
 	Camera camera;
@@ -36,7 +35,7 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeScene();
-	void GetFrame(Vector3 lb, Vector3 ub,  vector<VertexPN>& vertices, vector<int>& indices);
+	void GetFrame(Vector3 lb, Vector3 ub,  vector<VertexP>& vertices, vector<int>& indices);
 	void InitBox();
 	void InitFrame();
 	void InitJelly();
@@ -47,7 +46,7 @@ private:
 	void RendeGui();
 	void RenderMainPanel();
 	void RenderVisualisation();
-	void RenderFrame(VertexBuffer<VertexPN>& vb, IndexBuffer& ib, Vector4 color, Matrix matrix);
+	void RenderFrame(VertexBuffer<VertexP>& vb, IndexBuffer& ib, Vector4 color, Matrix matrix);
 
 	ComPtr<ID3D11Buffer> uav_buffer;
 	ComPtr<ID3D11UnorderedAccessView> uav_view;
@@ -64,8 +63,7 @@ private:
 	ConstantBuffer<ColoredObjectBuffer> cbColoredObject;
 	ConstantBuffer<LightBuffer> cbLight;
 
-
-	VertexBuffer<VertexPN> vbBox, vbJelly, vbFrame;
+	VertexBuffer<VertexP> vbBox, vbJelly, vbFrame;
 	IndexBuffer ibBox, ibJelly, ibFrame, ibJellySides[6];
 
 	ComPtr<ID3D11DepthStencilView> depthStencilView;
