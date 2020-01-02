@@ -224,9 +224,6 @@
     <ClInclude Include="Geometry\vec3.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files\Geometry</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="my_vs.hlsl">
