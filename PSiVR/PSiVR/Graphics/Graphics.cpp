@@ -121,7 +121,18 @@ void Graphics::RenderVisualisation()
 	if (guiData->showJelly)RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 }, Matrix::Identity);
 
 	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	RenderShading();
+	UINT offset = 0;
+
+	cbColoredObject.data.worldMatrix = Matrix::CreateScale(5);
+	cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	cbColoredObject.data.color = { 1,1,1,1 };
+
+	if (!cbColoredObject.ApplyChanges()) return;
+	deviceContext->IASetVertexBuffers(0, 1, vbModel.GetAddressOf(), vbModel.StridePtr(), &offset);
+	deviceContext->IASetIndexBuffer(ibModel.Get(), DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->DrawIndexed(ibModel.BufferSize(), 0, 0);
+
+	//RenderShading();
 }
 void Graphics::RenderFrame(VertexBuffer<VertexP>& vb, IndexBuffer& ib, Vector4 color, Matrix matrix)
 {
@@ -308,7 +319,7 @@ bool Graphics::InitializeDirectX(HWND hwnd)
 }
 bool Graphics::InitializeShaders()
 {
-	wstring root = L"Resources\Shaders";
+	wstring root = L"";
 
 	if (!vertexshader.Initialize(this->device, root + L"my_vs.cso", VertexP::layout, ARRAYSIZE(VertexP::layout)))
 		return false;
@@ -423,12 +434,68 @@ void Graphics::UpdateJellySides()
 	}
 }
 
-void Graphics::LoadBunny()
+void Graphics::InitModel()
 {
-	ofstream myfile;
-	myfile.open("bunny.obj");
-	myfile << "Writing this to a file.\n";
-	myfile.close();
+	ifstream file("./Resources/Data/bunny.obj");
+	string str;
+
+	vector<VertexPT3> vertices;
+	vector<int> indices;
+
+	while (getline(file, str))
+	{
+		if (str[0] == 'v')
+		{
+			str = str.substr(2);
+			int p = str.find(' ');
+			float x = stof(str.substr(0, p));
+			str = str.substr(p + 1);
+			p = str.find(' ');
+			float y = stof(str.substr(0, p));
+			str = str.substr(p + 1);
+			float z = stof(str);
+
+			vertices.push_back({ x,y,z , 0,0,0 });
+		}
+		else if (str[0] == 'f')
+		{
+			str = str.substr(2);
+			int p = str.find(' ');
+			indices.push_back(stoi(str.substr(0, p)) - 1);
+			str = str.substr(p + 1);
+			p = str.find(' ');
+			indices.push_back(stoi(str.substr(0, p)) - 1);
+			str = str.substr(p + 1);
+			indices.push_back(stoi(str) - 1);
+		}
+	}
+
+	Vector3 modelCenter = { 0,0,0 };
+	for (int i = 0; i < vertices.size(); i++)
+		modelCenter += vertices[i].pos;
+	modelCenter /= vertices.size();
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].pos -= modelCenter;
+		vertices[i].tex = vertices[i].pos / (simulation->cubeSize / 2);
+	}
+
+
+
+	reverse(indices.begin(), indices.end());
+
+	HRESULT hr = this->vbModel.Initialize(this->device.Get(), vertices.data(), vertices.size(), true);
+	if (FAILED(hr))
+		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
+
+	hr = this->ibModel.Initialize(this->device.Get(), indices.data(), indices.size());
+	if (FAILED(hr))
+		ErrorLogger::Log(hr, "Failed to create indices buffer.");
+}
+
+void Graphics::RenderModel()
+{
 }
 
 void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexP>& vertices, vector<int>& indices)
@@ -622,6 +689,7 @@ bool Graphics::InitializeScene()
 
 	InitConstantBuffers();
 	InitDeformation();
+	InitModel();
 	//InitUAV();
 
 	camera.SetPosition(0, -5.0f, 0);

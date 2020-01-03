@@ -1,18 +1,21 @@
 #pragma once
 #include <DirectXMath.h>
 #include <d3d11.h>
+#include <SimpleMath.h>
+
+using namespace DirectX::SimpleMath;
 
 struct VertexP
 {
 	VertexP() {}
 
-	VertexP(DirectX::XMFLOAT3 _pos)
+	VertexP(Vector3 _pos)
 		: pos(_pos) {}
 
 	VertexP(float x, float y, float z)
 		: pos(x, y, z) {}
 
-	DirectX::XMFLOAT3 pos;
+	Vector3 pos;
 
 	static D3D11_INPUT_ELEMENT_DESC layout[1];
 };
@@ -21,14 +24,14 @@ struct VertexPN
 {
 	VertexPN() {}
 
-	VertexPN(DirectX::XMFLOAT3 _pos, DirectX::XMFLOAT3 _normal)
+	VertexPN(Vector3 _pos, Vector3 _normal)
 		: pos(_pos), normal(_normal) {}
 
 	VertexPN(float x, float y, float z, float nx, float ny, float nz)
 		: pos(x, y, z), normal(nx, ny, nz) {}
 
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT3 normal;
+	Vector3 pos;
+	Vector3 normal;
 
 	static D3D11_INPUT_ELEMENT_DESC layout[2];
 };
@@ -37,14 +40,30 @@ struct VertexPT
 {
 	VertexPT() {}
 
-	VertexPT(DirectX::XMFLOAT3 _pos, DirectX::XMFLOAT2 _tex)
+	VertexPT(Vector3 _pos, Vector2 _tex)
 		: pos(_pos), tex(_tex) {}
 
 	VertexPT(float x, float y, float z, float u, float v)
 		: pos(x, y, z), tex(u,v) {}
 
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT2 tex;
+	Vector3 pos;
+	Vector2 tex;
+
+	static D3D11_INPUT_ELEMENT_DESC layout[2];
+};
+
+struct VertexPT3
+{
+	VertexPT3() {}
+
+	VertexPT3(Vector3 _pos, Vector3 _tex)
+		: pos(_pos), tex(_tex) {}
+
+	VertexPT3(float x, float y, float z, float u, float v, float w)
+		: pos(x, y, z), tex(u, v,w) {}
+
+	Vector3 pos;
+	Vector3 tex;
 
 	static D3D11_INPUT_ELEMENT_DESC layout[2];
 };
@@ -54,15 +73,15 @@ struct VertexPNT
 {
 	VertexPNT() {}
 
-	VertexPNT(DirectX::XMFLOAT3 _pos, DirectX::XMFLOAT3 _normal, DirectX::XMFLOAT2 _tex)
+	VertexPNT(Vector3 _pos, Vector3 _normal, Vector2 _tex)
 		: pos(_pos), normal(_normal), tex(_tex) {}
 
 	VertexPNT(float x, float y, float z, float nx, float ny, float nz, float u, float v)
 		: pos(x, y, z), normal(nx, ny, nz), tex(u, v) {}
 
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT3 normal;
-	DirectX::XMFLOAT2 tex;
+	Vector3 pos;
+	Vector3 normal;
+	Vector2 tex;
 
 	static D3D11_INPUT_ELEMENT_DESC layout[3];
 };

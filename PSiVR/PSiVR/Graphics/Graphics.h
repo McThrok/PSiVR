@@ -47,7 +47,8 @@ private:
 	void InitDeformation();
 	void UpdateJellySides();
 
-	void LoadBunny();
+	void InitModel();
+	void RenderModel();
 
 	void InitGui(HWND hwnd);
 	void RendeGui();
@@ -75,8 +76,9 @@ private:
 	ConstantBuffer<ColoredObjectBuffer> cbColoredObject;
 	ConstantBuffer<LightBuffer> cbLight;
 
+	VertexBuffer<VertexPT3>  vbModel;
 	VertexBuffer<VertexP> vbBox, vbJelly, vbFrame;
-	IndexBuffer ibBox, ibJelly, ibFrame;
+	IndexBuffer ibBox, ibJelly, ibFrame, ibModel;
 	VertexBuffer<VertexPT> vbJellySides[6];
 	IndexBuffer ibJellySides;
 
