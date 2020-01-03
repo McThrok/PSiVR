@@ -5,8 +5,8 @@ cbuffer perObjectBuffer : register(b0)
 	float4 color;
 };
 
-//Texture3D b;
-//SamplerState s;
+Texture3D b: register(t0);
+SamplerState s: register(s0);
 
 struct VS_INPUT
 {
@@ -24,7 +24,10 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
 	VS_OUTPUT output;
-	float3 pos = input.inPos;
+	//float3 pos = b.Sample(s, input.tex);
+	//float3 pos = b.SampleLevel(s, 1 - input.tex, 1);
+	float3 pos = b.SampleLevel(s, input.tex, 1);
+	//pos = input.inPos;
 
 	output.outPosition = mul(wvpMatrix, float4(pos, 1.0f));
 	output.outNormal = float3(0, 0, 0);

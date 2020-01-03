@@ -120,6 +120,7 @@ void Graphics::RenderVisualisation()
 	UpdateJellyMesh();
 	if (guiData->showJelly)RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 }, Matrix::Identity);
 
+	UpdateDeformationTexture();
 	RenderModel();
 	//RenderShading();
 }
@@ -420,16 +421,15 @@ void Graphics::UpdateJellySides()
 	}
 }
 
-
 void Graphics::RenderModel()
 {
 	this->deviceContext->IASetInputLayout(this->deformationShader.GetInputLayout());
 	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	this->deviceContext->RSSetState(this->rasterizerState.Get());
-	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->deviceContext->VSSetShader(deformationShader.GetShader(), NULL, 0);
 	this->deviceContext->GSSetShader(normalsShader.GetShader(), NULL, 0);
 	this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
+	this->deviceContext->VSSetSamplers(0, 1, sampler.GetAddressOf());
+	this->deviceContext->VSSetShaderResources(0, 1, texSRV.GetAddressOf());
 	UINT offset = 0;
 
 	cbColoredObject.data.worldMatrix = Matrix::Identity;
@@ -615,7 +615,7 @@ void Graphics::InitDeformation()
 	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampler_desc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
+	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	sampler_desc.MipLODBias = 0;
 	sampler_desc.MaxAnisotropy = 1;
 	sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
@@ -626,6 +626,22 @@ void Graphics::InitDeformation()
 	sampler_desc.MinLOD = -3.402823466e+38F; // -FLT_MAX
 	sampler_desc.MaxLOD = 3.402823466e+38F; // FLT_MAX
 	device->CreateSamplerState(&sampler_desc, sampler.GetAddressOf());
+}
+void Graphics::UpdateDeformationTexture()
+{
+	D3D11_MAPPED_SUBRESOURCE resource;
+	this->deviceContext->Map(tex3D.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+		{
+			Vector3* verts = (Vector3*)((byte*)resource.pData + resource.DepthPitch * i + resource.RowPitch * j);
+
+			for (int k = 0; k < 4; k++)
+				verts[k] = simulation->p[i][j][k];
+		}
+
+	this->deviceContext->Unmap(tex3D.Get(), 0);
 }
 bool Graphics::InitializeScene()
 {
@@ -690,7 +706,8 @@ void Graphics::InitModel()
 	{
 		vertices[i].pos -= modelCenter;
 		vertices[i].pos = XMVector3TransformCoord(vertices[i].pos, m);
-		vertices[i].tex = vertices[i].pos / (simulation->cubeSize / 2);
+		Vector3 tex = Vector3(vertices[i].pos / simulation->cubeSize) + Vector3(0.5f);
+		vertices[i].tex = { tex.z,tex.y,tex.x };
 	}
 
 	reverse(indices.begin(), indices.end());

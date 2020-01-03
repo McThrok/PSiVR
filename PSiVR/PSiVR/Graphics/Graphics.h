@@ -45,6 +45,7 @@ private:
 	void InitConstantBuffers();
 	void InitUAV();
 	void InitDeformation();
+	void UpdateDeformationTexture();
 	void UpdateJellySides();
 
 	void InitModel();
