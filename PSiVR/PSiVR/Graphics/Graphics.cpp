@@ -706,7 +706,7 @@ void Graphics::InitModel()
 	{
 		vertices[i].pos -= modelCenter;
 		vertices[i].pos = XMVector3TransformCoord(vertices[i].pos, m);
-		Vector3 tex = Vector3(vertices[i].pos / simulation->cubeSize) + Vector3(0.5f);
+		Vector3 tex = Vector3(vertices[i].pos / simulation->cubeSize) +Vector3(0.5f);
 		vertices[i].tex = { tex.z,tex.y,tex.x };
 	}
 
