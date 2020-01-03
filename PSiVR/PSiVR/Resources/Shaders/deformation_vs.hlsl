@@ -5,12 +5,13 @@ cbuffer perObjectBuffer : register(b0)
 	float4 color;
 };
 
-Texture3D b;
-SamplerState s;
+//Texture3D b;
+//SamplerState s;
 
 struct VS_INPUT
 {
 	float3 inPos : POSITION;
+	float3 tex : TEXCOORD0;
 };
 
 struct VS_OUTPUT

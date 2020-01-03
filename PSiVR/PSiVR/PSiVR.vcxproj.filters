@@ -244,5 +244,8 @@
     <FxCompile Include="Resources\Shaders\my_vs.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\normals_gs.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

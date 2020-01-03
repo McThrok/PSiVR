@@ -51,6 +51,7 @@ void Simulation::Reset()
 
 void Simulation::Update(float dt)
 {
+	return;
 	if (paused)
 		return;
 

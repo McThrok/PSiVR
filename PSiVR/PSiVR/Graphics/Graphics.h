@@ -69,9 +69,9 @@ private:
 	ComPtr<IDXGISwapChain> swapchain;
 	ComPtr<ID3D11RenderTargetView> renderTargetView;
 
-	VertexShader vertexshader;
-	PixelShader pixelshader;
-	PixelShader pureColorPixelshader;
+	VertexShader vertexshader, deformationShader;
+	PixelShader pixelshader, pureColorPixelshader;
+	GeometryShader normalsShader;
 
 	ConstantBuffer<ColoredObjectBuffer> cbColoredObject;
 	ConstantBuffer<LightBuffer> cbLight;

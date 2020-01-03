@@ -120,18 +120,7 @@ void Graphics::RenderVisualisation()
 	UpdateJellyMesh();
 	if (guiData->showJelly)RenderFrame(vbJelly, ibJelly, { 0.4f ,0.4f ,0.4f ,1 }, Matrix::Identity);
 
-	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	UINT offset = 0;
-
-	cbColoredObject.data.worldMatrix = Matrix::CreateScale(5);
-	cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
-	cbColoredObject.data.color = { 1,1,1,1 };
-
-	if (!cbColoredObject.ApplyChanges()) return;
-	deviceContext->IASetVertexBuffers(0, 1, vbModel.GetAddressOf(), vbModel.StridePtr(), &offset);
-	deviceContext->IASetIndexBuffer(ibModel.Get(), DXGI_FORMAT_R32_UINT, 0);
-	deviceContext->DrawIndexed(ibModel.BufferSize(), 0, 0);
-
+	RenderModel();
 	//RenderShading();
 }
 void Graphics::RenderFrame(VertexBuffer<VertexP>& vb, IndexBuffer& ib, Vector4 color, Matrix matrix)
@@ -321,14 +310,11 @@ bool Graphics::InitializeShaders()
 {
 	wstring root = L"";
 
-	if (!vertexshader.Initialize(this->device, root + L"my_vs.cso", VertexP::layout, ARRAYSIZE(VertexP::layout)))
-		return false;
-
-	if (!pixelshader.Initialize(this->device, root + L"my_ps.cso"))
-		return false;
-
-	if (!pureColorPixelshader.Initialize(this->device, root + L"pureColor_ps.cso"))
-		return false;
+	if (!vertexshader.Initialize(this->device, root + L"my_vs.cso", VertexP::layout, ARRAYSIZE(VertexP::layout))) return false;
+	if (!pixelshader.Initialize(this->device, root + L"my_ps.cso")) return false;
+	if (!pureColorPixelshader.Initialize(this->device, root + L"pureColor_ps.cso")) return false;
+	if (!normalsShader.Initialize(this->device, root + L"normals_gs.cso")) return false;
+	if (!deformationShader.Initialize(this->device, root + L"deformation_vs.cso", VertexPT3::layout, ARRAYSIZE(VertexPT3::layout))) return false;
 
 	return true;
 }
@@ -434,68 +420,28 @@ void Graphics::UpdateJellySides()
 	}
 }
 
-void Graphics::InitModel()
-{
-	ifstream file("./Resources/Data/bunny.obj");
-	string str;
-
-	vector<VertexPT3> vertices;
-	vector<int> indices;
-
-	while (getline(file, str))
-	{
-		if (str[0] == 'v')
-		{
-			str = str.substr(2);
-			int p = str.find(' ');
-			float x = stof(str.substr(0, p));
-			str = str.substr(p + 1);
-			p = str.find(' ');
-			float y = stof(str.substr(0, p));
-			str = str.substr(p + 1);
-			float z = stof(str);
-
-			vertices.push_back({ x,y,z , 0,0,0 });
-		}
-		else if (str[0] == 'f')
-		{
-			str = str.substr(2);
-			int p = str.find(' ');
-			indices.push_back(stoi(str.substr(0, p)) - 1);
-			str = str.substr(p + 1);
-			p = str.find(' ');
-			indices.push_back(stoi(str.substr(0, p)) - 1);
-			str = str.substr(p + 1);
-			indices.push_back(stoi(str) - 1);
-		}
-	}
-
-	Vector3 modelCenter = { 0,0,0 };
-	for (int i = 0; i < vertices.size(); i++)
-		modelCenter += vertices[i].pos;
-	modelCenter /= vertices.size();
-
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		vertices[i].pos -= modelCenter;
-		vertices[i].tex = vertices[i].pos / (simulation->cubeSize / 2);
-	}
-
-
-
-	reverse(indices.begin(), indices.end());
-
-	HRESULT hr = this->vbModel.Initialize(this->device.Get(), vertices.data(), vertices.size(), true);
-	if (FAILED(hr))
-		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
-
-	hr = this->ibModel.Initialize(this->device.Get(), indices.data(), indices.size());
-	if (FAILED(hr))
-		ErrorLogger::Log(hr, "Failed to create indices buffer.");
-}
 
 void Graphics::RenderModel()
 {
+	this->deviceContext->IASetInputLayout(this->deformationShader.GetInputLayout());
+	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	this->deviceContext->RSSetState(this->rasterizerState.Get());
+	this->deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	this->deviceContext->VSSetShader(deformationShader.GetShader(), NULL, 0);
+	this->deviceContext->GSSetShader(normalsShader.GetShader(), NULL, 0);
+	this->deviceContext->PSSetShader(pixelshader.GetShader(), NULL, 0);
+	UINT offset = 0;
+
+	cbColoredObject.data.worldMatrix = Matrix::Identity;
+	cbColoredObject.data.wvpMatrix = cbColoredObject.data.worldMatrix * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+	cbColoredObject.data.color = { 1,1,1,1 };
+
+	if (!cbColoredObject.ApplyChanges()) return;
+	deviceContext->IASetVertexBuffers(0, 1, vbModel.GetAddressOf(), vbModel.StridePtr(), &offset);
+	deviceContext->IASetIndexBuffer(ibModel.Get(), DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->DrawIndexed(ibModel.BufferSize(), 0, 0);
+
+	this->deviceContext->GSSetShader(NULL, NULL, 0);
 }
 
 void Graphics::GetFrame(Vector3 lb, Vector3 ub, vector<VertexP>& vertices, vector<int>& indices)
@@ -696,4 +642,64 @@ bool Graphics::InitializeScene()
 	camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 
 	return true;
+}
+void Graphics::InitModel()
+{
+	ifstream file("./Resources/Data/bunny.obj");
+	string str;
+
+	vector<VertexPT3> vertices;
+	vector<int> indices;
+
+	while (getline(file, str))
+	{
+		if (str[0] == 'v')
+		{
+			str = str.substr(2);
+			int p = str.find(' ');
+			float x = stof(str.substr(0, p));
+			str = str.substr(p + 1);
+			p = str.find(' ');
+			float y = stof(str.substr(0, p));
+			str = str.substr(p + 1);
+			float z = stof(str);
+
+			vertices.push_back({ x,y,z , 0,0,0 });
+		}
+		else if (str[0] == 'f')
+		{
+			str = str.substr(2);
+			int p = str.find(' ');
+			indices.push_back(stoi(str.substr(0, p)) - 1);
+			str = str.substr(p + 1);
+			p = str.find(' ');
+			indices.push_back(stoi(str.substr(0, p)) - 1);
+			str = str.substr(p + 1);
+			indices.push_back(stoi(str) - 1);
+		}
+	}
+
+	Vector3 modelCenter = { 0,0,0 };
+	for (int i = 0; i < vertices.size(); i++)
+		modelCenter += vertices[i].pos;
+	modelCenter /= vertices.size();
+
+
+	Matrix m = Matrix::CreateRotationX(XM_PIDIV2) * Matrix::CreateScale(10 * simulation->cubeSize / 2);
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].pos -= modelCenter;
+		vertices[i].pos = XMVector3TransformCoord(vertices[i].pos, m);
+		vertices[i].tex = vertices[i].pos / (simulation->cubeSize / 2);
+	}
+
+	reverse(indices.begin(), indices.end());
+
+	HRESULT hr = this->vbModel.Initialize(this->device.Get(), vertices.data(), vertices.size(), true);
+	if (FAILED(hr))
+		ErrorLogger::Log(hr, "Failed to create vertex buffer.");
+
+	hr = this->ibModel.Initialize(this->device.Get(), indices.data(), indices.size());
+	if (FAILED(hr))
+		ErrorLogger::Log(hr, "Failed to create indices buffer.");
 }
