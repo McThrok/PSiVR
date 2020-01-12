@@ -94,7 +94,7 @@ void Graphics::RenderMainPanel() {
 	ImGui::Checkbox("show box", &guiData->showBox);
 
 	ImGui::Separator();
-	ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.2, 2);
+	//ImGui::SliderFloat("cube size", &simulation->cubeSize, 0.2, 2);
 	ImGui::SliderFloat("random factor", &simulation->randomFactor, 0.2, 2);
 
 	ImGui::Separator();
